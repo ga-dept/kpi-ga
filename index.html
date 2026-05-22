@@ -1,0 +1,2686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GASS Terus! — KPI Management System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --c-blue:#0057B7;
+  --c-blue-dark:#003F87;
+  --c-green:#00A651;
+  --c-green-dark:#007A3D;
+  --c-gold:#D4A017;
+  --c-gold-light:#F4C95D;
+  --grad-primary: linear-gradient(135deg,#0057B7 0%,#00A651 55%,#D4A017 100%);
+  --grad-soft: linear-gradient(135deg,rgba(0,87,183,.08) 0%,rgba(0,166,81,.06) 55%,rgba(212,160,23,.08) 100%);
+  --grad-footer: linear-gradient(135deg,#003F87 0%,#0057B7 50%,#00A651 100%);
+  --bg:#F7F9FC;
+  --bg-card:#FFFFFF;
+  --text:#0F172A;
+  --text-muted:#64748B;
+  --border:#E5E9F0;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04);
+  --shadow:0 4px 12px rgba(15,23,42,.06);
+  --shadow-lg:0 14px 40px -10px rgba(15,23,42,.18);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"cv11","ss01";
+}
+a{text-decoration:none}
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ====== Reusable ====== */
+.btn-grad{
+  background:var(--grad-primary);background-size:200% 200%;
+  color:#fff;border:none;border-radius:10px;padding:10px 20px;
+  font-weight:700;letter-spacing:.2px;transition:all .3s ease;
+  box-shadow:0 6px 16px -6px rgba(0,87,183,.45);
+}
+.btn-grad:hover{background-position:100% 0;color:#fff;transform:translateY(-1px);box-shadow:0 10px 22px -6px rgba(0,87,183,.55)}
+.btn-outline-grad{
+  background:#fff;color:var(--c-blue);border:1.5px solid var(--c-blue);
+  border-radius:10px;padding:9px 18px;font-weight:600;transition:all .2s;
+}
+.btn-outline-grad:hover{background:var(--c-blue);color:#fff}
+.btn-mini{background:#fff;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;transition:.15s;font-size:.84rem}
+.btn-mini:hover{border-color:var(--c-blue);color:var(--c-blue);background:#F7F9FC}
+.btn-mini.danger:hover{border-color:#E11D48;color:#E11D48;background:#FEF2F2}
+.btn-mini:disabled{cursor:not-allowed;opacity:.5}
+.scroll-x{overflow-x:auto}
+.kpi-table.weight-table{font-size:.78rem;min-width:760px}
+.kpi-table.weight-table th{font-size:.7rem;padding:6px 4px;text-align:center;background:#F8FAFC}
+.kpi-table.weight-table td{padding:4px}
+.w-inp{width:54px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;text-align:center;font-size:.82rem}
+.w-inp:focus{outline:none;border-color:var(--c-blue);box-shadow:0 0 0 2px rgba(0,87,183,.12)}
+.total-cell{font-weight:700;text-align:center;background:#F8FAFC}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:600;background:#EEF2F7;color:#475569;border:1px solid var(--border)}
+.chip-success{background:#E6F8EE;color:#066B3A;border-color:#B4E8C9}
+.chip-warning{background:#FEF6E7;color:#8A5A07;border-color:#F4D894}
+.chip-info{background:#E6F0FB;color:#003F87;border-color:#B5D2F0}
+.chip-danger{background:#FDECEC;color:#9B1C1C;border-color:#F5B5B5}
+.chip-gold{background:linear-gradient(135deg,#FEF6E7,#F4D894);color:#8A5A07;border:none;font-weight:700}
+.text-grad{background:var(--grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.divider{height:1px;background:var(--border);margin:24px 0}
+
+/* ====== Card / Form ====== */
+.cardx{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.cardx-h{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cardx-b{padding:22px}
+.cardx-h h5{margin:0;font-weight:700;font-size:1.05rem;color:var(--text)}
+.form-label{font-weight:600;font-size:.85rem;color:var(--text);margin-bottom:6px}
+.form-control,.form-select{border-radius:10px;border:1px solid var(--border);padding:10px 12px;font-size:.92rem;background:#fff}
+.form-control:focus,.form-select:focus{border-color:var(--c-blue);box-shadow:0 0 0 3px rgba(0,87,183,.12)}
+.form-control[readonly]{background:#F7F9FC}
+
+/* ====== Landing ====== */
+.lp-nav{
+  position:sticky;top:0;z-index:100;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.lp-nav-inner{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+.lp-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;color:var(--text)}
+.lp-logo-mark{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.95rem;
+  overflow:hidden
+}
+.lp-logo-mark img{width:100%;height:100%;object-fit:contain}
+.footer-logo-mark img{width:100%;height:100%;object-fit:contain}
+.lp-nav a.nav-link-x{color:var(--text-muted);font-weight:600;font-size:.9rem;padding:6px 12px;margin:0 2px}
+.lp-nav a.nav-link-x:hover{color:var(--c-blue)}
+
+.lp-hero{
+  position:relative;padding:64px 0 80px;text-align:center;overflow:hidden;
+  background:
+    radial-gradient(900px 380px at 50% -120px, rgba(0,87,183,.10), transparent 60%),
+    radial-gradient(700px 320px at 100% 0%, rgba(212,160,23,.10), transparent 55%),
+    radial-gradient(700px 320px at 0% 0%, rgba(0,166,81,.10), transparent 55%),
+    repeating-linear-gradient(0deg,rgba(15,23,42,.04) 0 1px,transparent 1px 64px),
+    repeating-linear-gradient(90deg,rgba(15,23,42,.04) 0 1px,transparent 1px 64px),
+    #FCFCFB;
+}
+.lp-hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;
+  background:#fff;border:1px solid var(--border);font-size:.78rem;font-weight:600;color:var(--c-gold);
+  box-shadow:var(--shadow-sm);margin-bottom:18px
+}
+.lp-hero-title{font-size:clamp(2rem,5vw,3.6rem);font-weight:800;line-height:1.08;letter-spacing:-1px;margin:0 auto;max-width:900px}
+.lp-hero-title .accent{background:var(--grad-primary);-webkit-background-clip:text;color:transparent}
+.lp-hero-sub{margin:18px auto 28px;max-width:620px;color:var(--text-muted);font-size:1.02rem;line-height:1.65}
+.lp-avatar{
+  position:absolute;width:54px;height:54px;border-radius:50%;border:3px solid #fff;
+  box-shadow:0 8px 22px -8px rgba(15,23,42,.25);background:#eee;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.95rem
+}
+.lp-avatar.a1{top:35%;left:8%;background:var(--c-blue)}
+.lp-avatar.a2{top:32%;right:8%;background:var(--c-green)}
+.lp-avatar.a3{bottom:18%;left:14%;background:var(--c-gold)}
+.lp-avatar.a4{bottom:14%;right:14%;background:var(--c-blue-dark)}
+.lp-arrow{position:absolute;font-size:1.2rem;color:var(--c-green)}
+.lp-arrow.r1{top:37%;left:13%}
+.lp-arrow.r2{top:34%;right:13%;transform:scaleX(-1)}
+.lp-arrow.r3{bottom:20%;left:19%}
+.lp-arrow.r4{bottom:16%;right:19%;transform:scaleX(-1)}
+@media (max-width:768px){.lp-avatar,.lp-arrow{display:none}}
+
+/* trust logos */
+.lp-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:36px;margin-top:34px;color:var(--text-muted)}
+.lp-trust-label{font-weight:700;font-size:.85rem;line-height:1.2}
+.lp-trust-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem;color:#1F2937;opacity:.85}
+.lp-trust-logo i{font-size:1.4rem}
+
+/* sections */
+.section{padding:64px 0}
+.section-eyebrow{font-weight:700;font-size:.78rem;letter-spacing:1.5px;color:var(--c-gold);text-transform:uppercase}
+.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin:8px 0 10px}
+.section-desc{color:var(--text-muted);max-width:580px;margin:0 auto;line-height:1.6}
+
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:36px}
+.step-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;transition:.3s}
+.step-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:transparent}
+.step-num{
+  width:38px;height:38px;border-radius:10px;background:var(--grad-primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:14px;
+  box-shadow:0 6px 14px -6px rgba(0,87,183,.45)
+}
+.step-card h6{font-weight:700;margin-bottom:6px}
+.step-card p{color:var(--text-muted);font-size:.88rem;margin:0;line-height:1.55}
+
+/* department kpi list */
+.dept-list .accord-item{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.dept-list .accord-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:12px}
+.dept-list .accord-head:hover{background:#FAFBFD}
+.dept-list .accord-body{padding:0 18px 18px;display:none;border-top:1px dashed var(--border)}
+.dept-list .accord-item.open .accord-body{display:block}
+.dept-list .accord-item.open .accord-head .bi-plus-circle{transform:rotate(45deg)}
+.dept-list .accord-head .bi-plus-circle{transition:.3s;font-size:1.2rem;color:var(--c-blue)}
+
+/* footer */
+.lp-footer{background:var(--grad-footer);color:#fff;padding:60px 0 28px;margin-top:60px}
+.lp-footer h6{color:#fff;font-weight:700;letter-spacing:.3px;margin-bottom:16px;font-size:.95rem}
+.lp-footer a, .lp-footer .footer-link{display:block;color:rgba(255,255,255,.85);padding:6px 0;font-size:.92rem;transition:.2s;cursor:pointer}
+.lp-footer a:hover, .lp-footer .footer-link:hover{color:#fff;transform:translateX(3px)}
+.lp-footer .footer-logo-mark{
+  width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800
+}
+.lp-footer .footer-bottom{
+  border-top:1px solid rgba(255,255,255,.15);margin-top:42px;padding-top:22px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px
+}
+.lp-footer .footer-bottom small{color:rgba(255,255,255,.85)}
+
+/* popup notification */
+.popup-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:2000;padding:20px
+}
+.popup-overlay.show{display:flex}
+.popup-box{
+  background:#fff;border-radius:18px;max-width:480px;width:100%;overflow:hidden;
+  box-shadow:0 30px 60px -20px rgba(15,23,42,.4);animation:popIn .3s ease
+}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.popup-head{padding:20px 22px;background:var(--grad-primary);color:#fff;display:flex;justify-content:space-between;align-items:center}
+.popup-head h5{margin:0;font-weight:700}
+.popup-head .close-x{background:rgba(255,255,255,.2);border:none;width:30px;height:30px;border-radius:50%;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.popup-body{padding:22px;color:var(--text);line-height:1.6}
+.popup-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ====== LOGIN ====== */
+.login-wrap{
+  min-height:100vh;display:flex;align-items:stretch;
+  background:
+    radial-gradient(700px 400px at 10% 10%,rgba(0,87,183,.10),transparent 60%),
+    radial-gradient(700px 400px at 90% 90%,rgba(212,160,23,.10),transparent 60%),
+    #FCFCFB
+}
+.login-left{flex:1.1;padding:50px;display:flex;flex-direction:column;justify-content:space-between;position:relative;background:var(--grad-primary);color:#fff;overflow:hidden}
+.login-left::before{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 80px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 80px);pointer-events:none}
+.login-left h1{font-size:2.4rem;font-weight:800;line-height:1.1;margin:0 0 12px;position:relative}
+.login-left p{opacity:.88;max-width:420px;line-height:1.6;position:relative}
+.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.login-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:38px 36px;max-width:420px;width:100%;box-shadow:var(--shadow-lg)}
+.login-card h3{font-weight:800;margin-bottom:6px}
+.login-card .sub{color:var(--text-muted);margin-bottom:24px;font-size:.92rem}
+@media (max-width:880px){.login-left{display:none}.login-right{padding:24px}}
+
+/* ====== APP TOPBAR (after login) ====== */
+.app-bar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border)}
+.app-bar-inner{display:flex;align-items:center;gap:14px;padding:12px 0}
+.app-nav{display:flex;gap:4px;flex-wrap:wrap}
+.app-nav button{background:transparent;border:none;padding:9px 14px;border-radius:9px;font-weight:600;color:var(--text-muted);font-size:.9rem;display:inline-flex;align-items:center;gap:6px}
+.app-nav button:hover{color:var(--c-blue);background:rgba(0,87,183,.06)}
+.app-nav button.active{background:var(--c-blue);color:#fff;box-shadow:0 6px 14px -6px rgba(0,87,183,.5)}
+.app-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+.bell-btn{position:relative;background:transparent;border:1px solid var(--border);width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;transition:.2s}
+.bell-btn:hover{border-color:var(--c-blue);color:var(--c-blue)}
+.bell-dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#E11D48;border:2px solid #fff}
+.bell-panel{position:absolute;top:48px;right:0;width:340px;max-height:420px;overflow:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);display:none;z-index:90}
+.bell-panel.show{display:block}
+.bell-panel h6{margin:0;padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.bell-item{padding:12px 16px;border-bottom:1px solid #F1F5F9;display:flex;gap:10px;align-items:flex-start;font-size:.86rem}
+.bell-item:last-child{border-bottom:none}
+.bell-item .ic{flex-shrink:0;width:30px;height:30px;border-radius:8px;background:var(--grad-soft);color:var(--c-blue);display:flex;align-items:center;justify-content:center}
+.bell-item.unread{background:#F8FAFE}
+
+.profile-btn{display:flex;align-items:center;gap:10px;background:transparent;border:1px solid var(--border);padding:5px 12px 5px 5px;border-radius:999px;cursor:pointer;transition:.2s}
+.profile-btn:hover{border-color:var(--c-blue)}
+.profile-btn .avatar{width:30px;height:30px;border-radius:50%;background:var(--grad-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem}
+.profile-btn span{font-weight:600;font-size:.86rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-panel{position:absolute;top:48px;right:0;width:220px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:none;z-index:90;overflow:hidden}
+.profile-panel.show{display:block}
+.profile-panel .p-info{padding:14px 16px;border-bottom:1px solid var(--border)}
+.profile-panel button{display:flex;width:100%;align-items:center;gap:10px;padding:11px 16px;background:transparent;border:none;font-size:.88rem;color:var(--text);text-align:left}
+.profile-panel button:hover{background:#F7F9FC;color:var(--c-blue)}
+
+/* ====== EMPLOYEE DASHBOARD ====== */
+.welcome-card{
+  background:var(--grad-primary);color:#fff;border-radius:18px;padding:28px 32px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;
+  position:relative;overflow:hidden
+}
+.welcome-card::before{content:"";position:absolute;right:-40px;bottom:-40px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.12)}
+.welcome-card::after{content:"";position:absolute;right:80px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08)}
+.welcome-card h3{font-weight:800;margin:0 0 4px;font-size:1.6rem;position:relative}
+.welcome-card p{margin:0;opacity:.9;position:relative}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;transition:.2s}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.stat-card .ic{width:42px;height:42px;border-radius:10px;background:var(--grad-soft);color:var(--c-blue);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
+.stat-card .label{font-size:.8rem;color:var(--text-muted);font-weight:600;margin-bottom:4px}
+.stat-card .value{font-weight:800;font-size:1.6rem;color:var(--text)}
+
+.progress-thin{height:8px;background:#F1F5F9;border-radius:999px;overflow:hidden}
+.progress-thin > div{height:100%;background:var(--grad-primary);border-radius:999px;transition:width .6s}
+
+.kpi-table{width:100%;border-collapse:separate;border-spacing:0}
+.kpi-table th{background:#F7F9FC;font-weight:700;font-size:.78rem;letter-spacing:.3px;text-transform:uppercase;color:var(--text-muted);padding:12px 14px;border-bottom:1px solid var(--border);text-align:left}
+.kpi-table td{padding:14px;border-bottom:1px solid #F1F5F9;font-size:.9rem;vertical-align:middle}
+.kpi-table tr:last-child td{border-bottom:none}
+.kpi-table .obj-name{font-weight:600}
+.kpi-table .action-btn{background:transparent;border:1px solid var(--border);width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);transition:.2s;margin-right:4px}
+.kpi-table .action-btn:hover{border-color:var(--c-blue);color:var(--c-blue)}
+.kpi-table .action-btn.danger:hover{border-color:#DC2626;color:#DC2626}
+.kpi-table .action-btn.success:hover{border-color:var(--c-green);color:var(--c-green)}
+.kpi-table .action-btn.gold:hover{border-color:var(--c-gold);color:var(--c-gold)}
+
+.tabs-line{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tabs-line button{background:transparent;border:none;padding:11px 16px;font-weight:600;color:var(--text-muted);font-size:.92rem;position:relative}
+.tabs-line button.active{color:var(--c-blue)}
+.tabs-line button.active::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:2px;background:var(--grad-primary);border-radius:2px}
+
+/* KPI Form modal */
+.modal-x{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1500;padding:20px;overflow-y:auto}
+.modal-x.show{display:flex}
+.modal-x-box{background:#fff;border-radius:16px;max-width:860px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:popIn .25s}
+.modal-x-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.modal-x-head h5{margin:0;font-weight:700}
+.modal-x-body{padding:22px;overflow-y:auto;flex:1}
+.modal-x-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:#FAFBFD}
+
+.kr-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;transition:.2s}
+.kr-card:hover{border-color:#CBD5E1}
+.kr-card .kr-title{font-weight:700;margin-bottom:8px;color:var(--text);font-size:.95rem;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.kr-card .kr-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+
+/* ====== REPORT (printable) ====== */
+.report-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:38px 42px;max-width:880px;margin:0 auto;color:#0F172A}
+.report-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F172A;padding-bottom:14px;margin-bottom:18px}
+.report-head .ttl{font-weight:800;font-size:1.2rem;letter-spacing:.5px}
+.report-head .sub{font-size:.8rem;color:var(--text-muted)}
+.report-info{display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;font-size:.85rem;margin-bottom:22px}
+.report-info label{color:var(--text-muted);width:100px;display:inline-block}
+.report-info b{font-weight:700}
+.report-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.report-table th,.report-table td{border:1px solid #CBD5E1;padding:8px 10px;text-align:center}
+.report-table th{background:#F1F5F9;font-weight:700}
+.report-table td.kr-cell{text-align:left}
+.report-table tfoot td{background:#F8FAFC;font-weight:700}
+.score-box{background:#F8FAFC;border:2px solid #E5E9F0;border-radius:14px;padding:18px;text-align:center;min-width:170px}
+.score-box .label{font-size:.7rem;letter-spacing:1.2px;color:var(--text-muted);font-weight:700}
+.score-box .val{font-size:3rem;font-weight:800;line-height:1;background:var(--grad-primary);-webkit-background-clip:text;color:transparent}
+.sig-row{display:flex;justify-content:flex-end;margin-top:36px}
+.sig-box{text-align:center;min-width:240px;font-size:.85rem}
+.sig-box img{height:70px;object-fit:contain;display:block;margin:0 auto}
+.sig-box .name{font-weight:700;text-decoration:underline;text-transform:uppercase;margin-top:4px}
+
+/* ====== ADMIN CPANEL ====== */
+.cpanel{display:flex;min-height:100vh;background:var(--bg)}
+.side{width:260px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.side-h{padding:20px 22px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.side-h .brand{font-weight:800;font-size:1rem;line-height:1.1}
+.side-h .brand small{display:block;font-weight:500;font-size:.72rem;color:var(--text-muted)}
+.side-nav{padding:14px 12px;flex:1;overflow-y:auto}
+.side-nav .sn-label{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-muted);padding:14px 12px 6px;font-weight:700}
+.side-nav button{display:flex;width:100%;align-items:center;gap:11px;background:transparent;border:none;padding:11px 12px;border-radius:9px;font-size:.9rem;font-weight:600;color:var(--text);text-align:left;margin-bottom:2px;transition:.2s}
+.side-nav button:hover{background:#F7F9FC;color:var(--c-blue)}
+.side-nav button.active{background:var(--grad-primary);color:#fff;box-shadow:0 6px 14px -6px rgba(0,87,183,.45)}
+.side-nav button i{font-size:1.1rem}
+.side-f{padding:14px 16px;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-muted)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.main-bar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40}
+.main-bar h4{margin:0;font-weight:800;font-size:1.1rem}
+.main-bar h4 small{display:block;font-weight:500;font-size:.78rem;color:var(--text-muted)}
+.main-bar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.main-content{padding:26px 24px;flex:1}
+
+@media (max-width:880px){
+  .side{position:fixed;left:-280px;z-index:200;transition:.3s;box-shadow:0 0 40px rgba(0,0,0,.1)}
+  .side.show{left:0}
+  .side-toggle{display:flex!important}
+}
+.side-toggle{display:none;background:transparent;border:1px solid var(--border);width:38px;height:38px;border-radius:9px;align-items:center;justify-content:center}
+
+/* admin stat tiles */
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px}
+.atile{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.atile .lbl{font-size:.78rem;color:var(--text-muted);font-weight:600}
+.atile .vl{font-size:1.7rem;font-weight:800;margin-top:4px}
+.atile .bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--grad-primary)}
+.atile.gold .bar{background:linear-gradient(90deg,#D4A017,#F4C95D)}
+.atile.green .bar{background:linear-gradient(90deg,#00A651,#34D399)}
+.atile.blue .bar{background:linear-gradient(90deg,#0057B7,#3B82F6)}
+
+/* progress rows */
+.prog-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border)}
+.prog-row:last-child{border-bottom:none}
+.prog-row .nm{flex:1;min-width:0}
+.prog-row .nm b{display:block;font-size:.9rem}
+.prog-row .nm small{color:var(--text-muted);font-size:.78rem}
+.prog-row .bar{width:160px;height:7px;background:#F1F5F9;border-radius:999px;overflow:hidden}
+.prog-row .bar > div{height:100%;background:var(--grad-primary);border-radius:999px}
+.prog-row .pct{font-weight:800;width:46px;text-align:right;font-size:.9rem}
+
+/* log timeline */
+.log-row{display:flex;gap:14px;padding:14px 0;border-bottom:1px dashed var(--border)}
+.log-row:last-child{border-bottom:none}
+.log-row .dot{width:36px;height:36px;border-radius:50%;background:var(--grad-soft);color:var(--c-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.log-row .nm{font-weight:700;font-size:.92rem}
+.log-row .meta{color:var(--text-muted);font-size:.78rem}
+.log-row .act{font-size:.88rem;margin-top:2px}
+
+/* ====== PRINT ====== */
+@media print {
+  @page{size:A4;margin:1cm}
+  body{background:#fff !important}
+  .no-print, .app-bar, .lp-nav, .side, .main-bar, .lp-footer, .modal-x{display:none !important}
+  .page{display:none !important}
+  .page.print-active{display:block !important}
+  .report-wrap{border:none;box-shadow:none;padding:0;max-width:none}
+  .cpanel,.main,.main-content{display:block;padding:0;background:#fff}
+  body * {visibility:hidden}
+  .report-wrap, .report-wrap *{visibility:visible}
+  .report-wrap{position:absolute;left:0;top:0;width:100%}
+}
+
+/* Utility */
+.empty-state{padding:46px 20px;text-align:center;color:var(--text-muted)}
+.empty-state i{font-size:2.6rem;display:block;margin-bottom:8px;opacity:.5}
+.scroll-x{overflow-x:auto}
+.fw-7{font-weight:700}
+.gap-2x{gap:.8rem}
+.mb-bottom{margin-bottom:60px}
+
+/* ====== BOOT OVERLAY ====== */
+.boot-overlay{position:fixed;inset:0;z-index:9999;background:#fff;
+  display:flex;align-items:center;justify-content:center;padding:24px}
+.boot-overlay.hidden{display:none}
+.boot-box{max-width:440px;text-align:center}
+.boot-box h5{font-weight:800;margin:18px 0 8px;color:var(--text)}
+.boot-box p{color:var(--text-muted);font-size:.92rem;line-height:1.6;margin-bottom:18px}
+.boot-box code{background:#F1F5F9;padding:2px 6px;border-radius:5px;font-size:.85rem;color:var(--c-blue)}
+.boot-spin{width:46px;height:46px;border-radius:50%;margin:0 auto;
+  border:4px solid #E2E8F0;border-top-color:var(--c-blue);animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+.boot-ic{width:64px;height:64px;border-radius:50%;margin:0 auto;font-size:1.7rem;
+  display:flex;align-items:center;justify-content:center}
+.boot-ic.warn{background:#FEF6E7;color:#D4A017}
+.boot-ic.err{background:#FDECEC;color:#E11D48}
+</style>
+</head>
+<body>
+
+<!-- ========== OVERLAY: LOADING / KONFIGURASI / ERROR ========== -->
+<div id="bootOverlay" class="boot-overlay">
+  <div class="boot-box" id="bootLoading">
+    <div class="boot-spin"></div>
+    <h5>Memuat data...</h5>
+    <p>Mohon tunggu sebentar.</p>
+  </div>
+  <div class="boot-box" id="bootConfig" style="display:none">
+    <div class="boot-ic warn"><i class="bi bi-gear-fill"></i></div>
+    <h5>Konfigurasi database belum diisi</h5>
+    <p>Buka file <code>index.html</code>, cari blok <b>SUPABASE_CONFIG</b> di bagian atas
+       tag <code>&lt;script&gt;</code>, lalu isi <b>url</b> dan <b>anonKey</b> dengan data
+       dari project Supabase Anda (menu <i>Project Settings &rsaquo; API</i>).</p>
+  </div>
+  <div class="boot-box" id="bootError" style="display:none">
+    <div class="boot-ic err"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <h5>Gagal terhubung ke Supabase</h5>
+    <p id="bootErrorMsg"></p>
+    <button class="btn-grad" onclick="location.reload()">Coba Lagi</button>
+  </div>
+</div>
+
+<!-- ====================== LANDING PAGE ====================== -->
+<section id="page-landing" class="page active">
+  <nav class="lp-nav">
+    <div class="container lp-nav-inner">
+      <div class="lp-logo">
+        <div class="lp-logo-mark"><img src="logo.png" alt="MRT Jakarta"></div>
+        <div>GASS Terus!<small style="display:block;font-weight:500;font-size:.7rem;color:var(--text-muted)">KPI Management System</small></div>
+      </div>
+      <div class="d-none d-md-flex align-items-center">
+        <a class="nav-link-x" onclick="scrollToSec('sec-panduan')">Panduan</a>
+        <a class="nav-link-x" onclick="scrollToSec('sec-kpi-dept')">KPI Departemen</a>
+        <a class="nav-link-x" onclick="scrollToSec('lp-footer')">Tentang</a>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn-outline-grad" onclick="goLogin()"><i class="bi bi-box-arrow-in-right me-1"></i>Login</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="lp-hero">
+    <div class="lp-avatar a1">RA</div><div class="lp-arrow r1"><i class="bi bi-arrow-down-right"></i></div>
+    <div class="lp-avatar a2">MS</div><div class="lp-arrow r2"><i class="bi bi-arrow-down-right"></i></div>
+    <div class="lp-avatar a3">AM</div><div class="lp-arrow r3"><i class="bi bi-arrow-up-right"></i></div>
+    <div class="lp-avatar a4">DI</div><div class="lp-arrow r4"><i class="bi bi-arrow-up-right"></i></div>
+    <div class="container position-relative">
+      <span class="lp-hero-badge"><i class="bi bi-fire"></i> Sistem Penilaian Kinerja Resmi</span>
+      <h1 class="lp-hero-title">Kelola Kinerja Tim dengan <span class="accent">GASS Terus!</span></h1>
+      <p class="lp-hero-sub">Platform internal General Affairs Department untuk pengelolaan, penilaian, dan evaluasi <b>Key Performance Indicator (KPI)</b> tahunan secara transparan, terstruktur, dan akuntabel.</p>
+      <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <button class="btn-grad" onclick="goLogin()"><i class="bi bi-arrow-right-circle me-2"></i>Mulai Sekarang</button>
+        <button class="btn-outline-grad" onclick="scrollToSec('sec-panduan')"><i class="bi bi-book me-2"></i>Pelajari Cara</button>
+      </div>
+
+      <div class="lp-trust">
+        <div class="lp-trust-label">Dipercaya<br>oleh tim:</div>
+        <div class="lp-trust-logo"><i class="bi bi-shield-check text-primary"></i> GA Department</div>
+        <div class="lp-trust-logo"><i class="bi bi-people-fill text-success"></i> 10+ Karyawan</div>
+        <div class="lp-trust-logo"><i class="bi bi-award text-warning"></i> Periode 2025-2026</div>
+        <div class="lp-trust-logo"><i class="bi bi-building text-info"></i> MRT Jakarta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANDUAN -->
+  <section class="section" id="sec-panduan">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-eyebrow">Step-by-step</span>
+        <h2 class="section-title">Cara Menggunakan Platform</h2>
+        <p class="section-desc">Ikuti langkah berikut secara berurutan untuk pengalaman terbaik dalam mengelola KPI Anda.</p>
+      </div>
+      <div class="step-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h6>Login ke Sistem</h6>
+          <p>Gunakan <b>username</b> dan <b>password</b> Anda. Karyawan baru? Hubungi Superadmin untuk pembuatan akun.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h6>Cek Notifikasi 🔔</h6>
+          <p>Lonceng notifikasi akan mengingatkan KPI mana yang masih harus diisi sebelum deadline periode.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h6>Buka "KPI Saya"</h6>
+          <p>Lihat daftar lengkap KPI yang dibebankan kepada Anda, lengkap dengan <b>bobot</b>, <b>target</b>, dan <b>status</b>.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h6>Isi Penilaian</h6>
+          <p>Klik tombol <i class="bi bi-pencil-square"></i> Isi untuk membuka form. Masukkan <b>realisasi</b> untuk tiap Key Result.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <h6>Upload Bukti & TTD</h6>
+          <p>Lampirkan bukti pendukung (dokumen/foto), centang pernyataan, lalu upload tanda tangan digital.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">6</div>
+          <h6>Submit & Cetak</h6>
+          <p>Sistem otomatis menghitung <b>Total Skor</b> dan <b>Skor Final (SF)</b>. Cetak per KPI atau rekap keseluruhan.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">7</div>
+          <h6>Edit Maksimal 3×</h6>
+          <p>Jika ada koreksi, Anda dapat <b>mengedit</b> KPI yang sudah disubmit hingga <b>3 kali</b> sebelum dikunci permanen.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">8</div>
+          <h6>Cetak Rekap</h6>
+          <p>Setelah semua KPI selesai, gunakan tombol <i class="bi bi-printer"></i> <b>Cetak Keseluruhan</b> untuk laporan final tahunan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI DEPARTEMEN -->
+  <section class="section" id="sec-kpi-dept" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+      <div class="text-center mb-4">
+        <span class="section-eyebrow">Transparansi</span>
+        <h2 class="section-title">KPI Departemen — Periode Aktif</h2>
+        <p class="section-desc">Daftar Key Performance Indicator yang sedang berlaku di General Affairs Department. Klik untuk melihat detail Key Result.</p>
+      </div>
+      <div id="landingDeptList" class="dept-list" style="max-width:880px;margin:30px auto 0"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="lp-footer" id="lp-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="footer-logo-mark"><img src="logo.png" alt="MRT Jakarta"></div>
+            <div style="font-weight:800;font-size:1.05rem">GASS Terus!</div>
+          </div>
+          <p style="opacity:.85;line-height:1.6;font-size:.92rem">
+            Platform manajemen kinerja internal General Affairs Department untuk pengelolaan KPI tahunan yang transparan dan akuntabel.
+          </p>
+          <div class="d-flex gap-2 mt-3">
+            <a href="#" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-envelope-fill"></i></a>
+            <a href="#" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-telephone-fill"></i></a>
+            <a href="#" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-globe"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <h6>Platform</h6>
+          <div class="footer-link" onclick="goLogin()">Login</div>
+          <div class="footer-link" onclick="scrollToSec('sec-panduan')">Panduan</div>
+          <div class="footer-link" onclick="scrollToSec('sec-kpi-dept')">KPI Departemen <span class="badge bg-warning text-dark ms-1">Baru</span></div>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <h6>Perusahaan</h6>
+          <div class="footer-link">Tentang Kami</div>
+          <div class="footer-link">General Affairs</div>
+          <div class="footer-link">QM Unit</div>
+          <div class="footer-link">Kontak</div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <h6>Hubungi Kami</h6>
+          <div style="opacity:.85;font-size:.9rem;line-height:1.7">
+            <div><i class="bi bi-geo-alt-fill me-2"></i>Wisma Nusantara, Jakarta Pusat</div>
+            <div><i class="bi bi-envelope me-2"></i>ga.support@jakartamrt.co.id</div>
+            <div><i class="bi bi-clock me-2"></i>Senin - Jumat, 08:00 - 17:00 WIB</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <small>© 2026 GASS Terus! · General Affairs Department · PT MRT Jakarta (Perseroda). All rights reserved.</small>
+        <small>Dibuat dengan ❤️ oleh QM Unit</small>
+      </div>
+    </div>
+  </footer>
+</section>
+
+<!-- ====================== LOGIN PAGE ====================== -->
+<section id="page-login" class="page">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div style="position:relative">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <div class="lp-logo-mark" style="background:rgba(255,255,255,.18)"><img src="logo.png" alt="MRT Jakarta"></div>
+          <div style="font-weight:800;font-size:1.1rem">GASS Terus!</div>
+        </div>
+        <h1>Selamat Datang Kembali 👋</h1>
+        <p>Login untuk mengakses dashboard KPI Anda, mengisi penilaian, dan melihat progres kinerja periode berjalan.</p>
+      </div>
+      <div style="position:relative;font-size:.85rem;opacity:.85">
+        <i class="bi bi-shield-lock-fill me-2"></i>Akses terbatas hanya untuk karyawan GA Department.
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-card">
+        <h3 class="text-grad">Masuk ke Akun</h3>
+        <p class="sub">Gunakan kredensial yang diberikan oleh administrator.</p>
+        <form onsubmit="event.preventDefault();doLogin()">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input class="form-control" id="liU" placeholder="contoh: arizki" required autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+              <input class="form-control" type="password" id="liP" required autocomplete="current-password">
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePw('liP',this)"><i class="bi bi-eye"></i></button>
+            </div>
+          </div>
+          <div id="liErr" class="chip chip-danger mb-3" style="display:none;width:100%;justify-content:flex-start"></div>
+          <button class="btn-grad w-100 py-2" type="submit"><i class="bi bi-box-arrow-in-right me-2"></i>Login</button>
+          <button type="button" class="btn btn-link w-100 mt-2" onclick="route('landing')">← Kembali ke beranda</button>
+        </form>
+        <div style="border-top:1px solid var(--border);margin:18px 0;padding-top:14px;font-size:.78rem;color:var(--text-muted);text-align:center">
+          <i class="bi bi-info-circle me-1"></i>Lupa password? Hubungi Superadmin.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ====================== EMPLOYEE DASHBOARD ====================== -->
+<section id="page-employee" class="page">
+  <header class="app-bar no-print">
+    <div class="container app-bar-inner">
+      <div class="lp-logo">
+        <div class="lp-logo-mark"><img src="logo.png" alt="MRT Jakarta"></div>
+        <div style="font-weight:800">GASS Terus!</div>
+      </div>
+      <nav class="app-nav ms-3" id="empNav">
+        <button class="active" data-tab="emp-home" onclick="empTab('emp-home')"><i class="bi bi-house-door"></i> Beranda</button>
+        <button data-tab="emp-mykpi" onclick="empTab('emp-mykpi')"><i class="bi bi-bullseye"></i> KPI Saya</button>
+        <button data-tab="emp-dept" onclick="empTab('emp-dept')"><i class="bi bi-people"></i> KPI Departemen</button>
+        <button data-tab="emp-guide" onclick="empTab('emp-guide')"><i class="bi bi-question-circle"></i> Panduan</button>
+      </nav>
+      <div class="app-bar-right">
+        <div style="position:relative">
+          <button class="bell-btn" onclick="toggleBell('emp')">
+            <i class="bi bi-bell-fill"></i>
+            <span class="bell-dot" id="empBellDot" style="display:none"></span>
+          </button>
+          <div class="bell-panel" id="empBellPanel">
+            <h6>Notifikasi <button class="btn btn-sm btn-link p-0" onclick="markAllRead()">Tandai semua dibaca</button></h6>
+            <div id="empBellList"></div>
+          </div>
+        </div>
+        <div style="position:relative">
+          <button class="profile-btn" onclick="toggleProfile('emp')">
+            <div class="avatar" id="empAvatar">?</div>
+            <span id="empProfileName">User</span>
+            <i class="bi bi-chevron-down" style="font-size:.7rem;color:var(--text-muted)"></i>
+          </button>
+          <div class="profile-panel" id="empProfilePanel">
+            <div class="p-info">
+              <div style="font-weight:700;font-size:.92rem" id="empPiName"></div>
+              <small style="color:var(--text-muted)" id="empPiRole"></small>
+            </div>
+            <button onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container my-4">
+    <!-- HOME / DASHBOARD TAB -->
+    <div id="emp-home" class="emp-tab-pane">
+      <div class="welcome-card mb-4">
+        <div>
+          <h3 id="empWelcomeName">Halo!</h3>
+          <p id="empWelcomeSub">Berikut ringkasan progres KPI Anda untuk periode aktif.</p>
+        </div>
+        <div class="text-center" style="position:relative">
+          <div style="font-size:.78rem;opacity:.85;font-weight:700;letter-spacing:1.2px">PROGRES KPI</div>
+          <div style="font-size:3rem;font-weight:800;line-height:1" id="empMyProgress">0%</div>
+        </div>
+      </div>
+
+      <div class="stat-grid mb-4">
+        <div class="stat-card"><div class="ic"><i class="bi bi-bullseye"></i></div><div class="label">Total KPI Ditugaskan</div><div class="value" id="empSt1">0</div></div>
+        <div class="stat-card"><div class="ic" style="background:#FEF6E7;color:#8A5A07"><i class="bi bi-hourglass-split"></i></div><div class="label">Belum Diisi</div><div class="value" id="empSt2">0</div></div>
+        <div class="stat-card"><div class="ic" style="background:#E6F8EE;color:#066B3A"><i class="bi bi-check-circle-fill"></i></div><div class="label">Sudah Submit</div><div class="value" id="empSt3">0</div></div>
+        <div class="stat-card"><div class="ic" style="background:linear-gradient(135deg,#FEF6E7,#F4D894);color:#8A5A07"><i class="bi bi-trophy-fill"></i></div><div class="label">Skor Final Rata-rata</div><div class="value" id="empSt4">-</div></div>
+      </div>
+
+      <div class="cardx">
+        <div class="cardx-h">
+          <h5><i class="bi bi-list-task me-2 text-grad"></i>KPI yang Perlu Diisi</h5>
+          <button class="btn-outline-grad" onclick="empTab('emp-mykpi')">Lihat Semua <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+        <div class="cardx-b">
+          <div id="empPendingList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI SAYA TAB -->
+    <div id="emp-mykpi" class="emp-tab-pane" style="display:none">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h4 class="fw-7 mb-0">KPI Saya</h4>
+          <small class="text-muted">Daftar semua KPI yang ditugaskan kepada Anda — Periode <b id="empCurrentYear">2026</b></small>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-outline-grad" onclick="printAllMyKpi()"><i class="bi bi-printer me-1"></i>Cetak Rekap</button>
+        </div>
+      </div>
+      <div class="cardx">
+        <div class="scroll-x">
+          <table class="kpi-table" id="empKpiTable">
+            <thead><tr>
+              <th style="width:36px">#</th>
+              <th>Objective</th>
+              <th style="width:90px">Bobot</th>
+              <th style="width:110px">Status</th>
+              <th style="width:80px">Skor</th>
+              <th style="width:80px">Edit</th>
+              <th style="width:200px">Aksi</th>
+            </tr></thead>
+            <tbody id="empKpiBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI DEPARTEMEN TAB -->
+    <div id="emp-dept" class="emp-tab-pane" style="display:none">
+      <h4 class="fw-7">KPI Departemen — Periode Aktif</h4>
+      <small class="text-muted d-block mb-3">Daftar lengkap objective KPI yang berlaku di General Affairs Department.</small>
+      <div id="empDeptList" class="dept-list"></div>
+    </div>
+
+    <!-- PANDUAN TAB -->
+    <div id="emp-guide" class="emp-tab-pane" style="display:none">
+      <h4 class="fw-7 mb-3">Panduan Lengkap Penggunaan</h4>
+      <div class="step-grid" id="empGuideGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ADMIN CPANEL ====================== -->
+<section id="page-admin" class="page">
+  <div class="cpanel">
+    <aside class="side no-print" id="adminSide">
+      <div class="side-h">
+        <div class="lp-logo-mark"><img src="logo.png" alt="MRT Jakarta"></div>
+        <div class="brand">GASS Terus!<small>CPanel</small></div>
+      </div>
+      <nav class="side-nav">
+        <div class="sn-label">Utama</div>
+        <button class="active" data-mod="ad-dash" onclick="adMod('ad-dash')"><i class="bi bi-grid-1x2-fill"></i> Dashboard</button>
+        <button data-mod="ad-kpi" onclick="adMod('ad-kpi')"><i class="bi bi-bullseye"></i> Manajemen KPI</button>
+        <button data-mod="ad-period" onclick="adMod('ad-period')"><i class="bi bi-calendar-event"></i> Periode KPI</button>
+        <button data-mod="ad-submit" onclick="adMod('ad-submit')"><i class="bi bi-file-earmark-check"></i> Penilaian KPI</button>
+        <div class="sn-label" id="snlSuper" style="display:none">Superadmin</div>
+        <button data-mod="ad-user" onclick="adMod('ad-user')" id="snUser" style="display:none"><i class="bi bi-people-fill"></i> Manajemen User</button>
+        <button data-mod="ad-popup" onclick="adMod('ad-popup')" id="snPopup" style="display:none"><i class="bi bi-megaphone-fill"></i> Popup Notifikasi</button>
+        <button data-mod="ad-log" onclick="adMod('ad-log')" id="snLog" style="display:none"><i class="bi bi-clock-history"></i> Log Aktivitas</button>
+      </nav>
+      <div class="side-f">
+        <div>Versi 2.0 · <b>2026</b></div>
+        <div class="mt-1">PT MRT Jakarta — QM Unit</div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="main-bar no-print">
+        <button class="side-toggle" onclick="document.getElementById('adminSide').classList.toggle('show')"><i class="bi bi-list"></i></button>
+        <h4 id="adTitle">Dashboard<small id="adSubtitle">Statistik & ringkasan KPI</small></h4>
+        <div class="main-bar-right">
+          <div style="position:relative">
+            <button class="bell-btn" onclick="toggleBell('ad')">
+              <i class="bi bi-bell-fill"></i>
+              <span class="bell-dot" id="adBellDot" style="display:none"></span>
+            </button>
+            <div class="bell-panel" id="adBellPanel">
+              <h6>Notifikasi <button class="btn btn-sm btn-link p-0" onclick="markAllRead()">Tandai semua dibaca</button></h6>
+              <div id="adBellList"></div>
+            </div>
+          </div>
+          <div style="position:relative">
+            <button class="profile-btn" onclick="toggleProfile('ad')">
+              <div class="avatar" id="adAvatar">?</div>
+              <span id="adProfileName">Admin</span>
+              <i class="bi bi-chevron-down" style="font-size:.7rem;color:var(--text-muted)"></i>
+            </button>
+            <div class="profile-panel" id="adProfilePanel">
+              <div class="p-info">
+                <div style="font-weight:700;font-size:.92rem" id="adPiName"></div>
+                <small style="color:var(--text-muted)" id="adPiRole"></small>
+              </div>
+              <button onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <!-- DASHBOARD MODULE -->
+        <div id="ad-dash" class="ad-mod">
+          <div class="admin-stats">
+            <div class="atile blue"><div class="lbl">Total User Aktif</div><div class="vl" id="adS1">0</div><div class="bar"></div></div>
+            <div class="atile green"><div class="lbl">Total KPI Aktif</div><div class="vl" id="adS2">0</div><div class="bar"></div></div>
+            <div class="atile gold"><div class="lbl">Total Submission</div><div class="vl" id="adS3">0</div><div class="bar"></div></div>
+            <div class="atile blue"><div class="lbl">Progres Keseluruhan</div><div class="vl" id="adS4">0%</div><div class="bar"></div></div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="cardx">
+                <div class="cardx-h"><h5><i class="bi bi-person-lines-fill text-grad me-2"></i>Progres Penilaian per Karyawan</h5></div>
+                <div class="cardx-b" id="adProgPerEmp"></div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="cardx mb-3">
+                <div class="cardx-h"><h5><i class="bi bi-trophy-fill text-grad me-2"></i>Top Skor Final</h5></div>
+                <div class="cardx-b" id="adTopScore"></div>
+              </div>
+              <div class="cardx">
+                <div class="cardx-h"><h5><i class="bi bi-clock-history text-grad me-2"></i>Aktivitas Terbaru</h5></div>
+                <div class="cardx-b" id="adRecentLog"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI MANAGEMENT MODULE -->
+        <div id="ad-kpi" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h">
+              <h5><i class="bi bi-bullseye text-grad me-2"></i>Manajemen Objective KPI</h5>
+              <div class="d-flex gap-2 align-items-center">
+                <select class="form-select form-select-sm" id="adKpiPeriodFilter" onchange="renderAdKpi()" style="width:auto"></select>
+                <button class="btn-grad" onclick="openKpiModal()"><i class="bi bi-plus-lg me-1"></i>Tambah KPI</button>
+              </div>
+            </div>
+            <div class="scroll-x">
+              <table class="kpi-table">
+                <thead><tr>
+                  <th style="width:36px">#</th>
+                  <th>Nama Objective</th>
+                  <th style="width:130px">Tipe Target</th>
+                  <th style="width:90px">Total KR</th>
+                  <th style="width:80px">Periode</th>
+                  <th style="width:180px">Aksi</th>
+                </tr></thead>
+                <tbody id="adKpiBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="cardx mt-3">
+            <div class="cardx-h">
+              <h5><i class="bi bi-grid-3x3-gap-fill text-grad me-2"></i>Pembobotan per Karyawan</h5>
+              <select class="form-select form-select-sm" id="adWeightPeriod" onchange="renderAdWeight()" style="width:auto"></select>
+            </div>
+            <div class="cardx-b">
+              <small class="text-muted d-block mb-2">Matriks bobot KPI per karyawan. Total bobot per karyawan harus = 100%. Klik sel untuk mengedit.</small>
+              <div class="scroll-x" id="adWeightWrap"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERIOD MODULE -->
+        <div id="ad-period" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h">
+              <h5><i class="bi bi-calendar-event text-grad me-2"></i>Periode KPI Tahunan</h5>
+              <button class="btn-grad" onclick="openPeriodModal()"><i class="bi bi-plus-lg me-1"></i>Tambah Periode</button>
+            </div>
+            <div class="scroll-x">
+              <table class="kpi-table">
+                <thead><tr>
+                  <th style="width:36px">#</th>
+                  <th>Tahun</th>
+                  <th>Nama Periode</th>
+                  <th style="width:120px">Status</th>
+                  <th style="width:120px">Total KPI</th>
+                  <th style="width:180px">Aksi</th>
+                </tr></thead>
+                <tbody id="adPeriodBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMISSION MODULE -->
+        <div id="ad-submit" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h">
+              <h5><i class="bi bi-file-earmark-check text-grad me-2"></i>Penilaian yang Disubmit</h5>
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" id="adSubPeriod" onchange="renderAdSubmit()" style="width:auto"></select>
+                <select class="form-select form-select-sm" id="adSubEmp" onchange="renderAdSubmit()" style="width:auto"></select>
+              </div>
+            </div>
+            <div class="scroll-x">
+              <table class="kpi-table">
+                <thead><tr>
+                  <th>Karyawan</th>
+                  <th>Objective</th>
+                  <th style="width:80px">Bobot</th>
+                  <th style="width:90px">Total Skor</th>
+                  <th style="width:80px">SF</th>
+                  <th style="width:100px">Edit</th>
+                  <th style="width:180px">Aksi</th>
+                </tr></thead>
+                <tbody id="adSubBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- USER MODULE (Superadmin) -->
+        <div id="ad-user" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h">
+              <h5><i class="bi bi-people-fill text-grad me-2"></i>Manajemen User</h5>
+              <button class="btn-grad" onclick="openUserModal()"><i class="bi bi-person-plus me-1"></i>Tambah User</button>
+            </div>
+            <div class="scroll-x">
+              <table class="kpi-table">
+                <thead><tr>
+                  <th style="width:36px">#</th>
+                  <th>Username</th>
+                  <th>Nama Lengkap</th>
+                  <th>NIK</th>
+                  <th>Jabatan</th>
+                  <th style="width:110px">Role</th>
+                  <th style="width:180px">Aksi</th>
+                </tr></thead>
+                <tbody id="adUserBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- POPUP MODULE (Superadmin) -->
+        <div id="ad-popup" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h"><h5><i class="bi bi-megaphone-fill text-grad me-2"></i>Pengaturan Popup Notifikasi</h5></div>
+            <div class="cardx-b">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Judul Popup</label>
+                  <input class="form-control" id="popTitle">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="popActive">
+                    <option value="1">Aktif (Tampilkan)</option>
+                    <option value="0">Non-aktif (Sembunyikan)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tampilkan Di</label>
+                  <select class="form-select" id="popTarget">
+                    <option value="both">Landing & CPanel</option>
+                    <option value="landing">Halaman Landing Saja</option>
+                    <option value="cpanel">CPanel Saja</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tipe</label>
+                  <select class="form-select" id="popType">
+                    <option value="info">Informasi</option>
+                    <option value="warning">Peringatan</option>
+                    <option value="success">Pengumuman</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Konten (HTML diperbolehkan)</label>
+                  <textarea class="form-control" id="popContent" rows="5"></textarea>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                  <button class="btn-grad" onclick="savePopup()"><i class="bi bi-save me-1"></i>Simpan Pengaturan</button>
+                  <button class="btn-outline-grad" onclick="previewPopup()"><i class="bi bi-eye me-1"></i>Preview</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOG MODULE (Superadmin) -->
+        <div id="ad-log" class="ad-mod" style="display:none">
+          <div class="cardx">
+            <div class="cardx-h">
+              <h5><i class="bi bi-clock-history text-grad me-2"></i>Log Aktivitas Sistem</h5>
+              <button class="btn-outline-grad" onclick="if(confirm('Bersihkan log?'))clearLogs()"><i class="bi bi-trash"></i> Bersihkan</button>
+            </div>
+            <div class="cardx-b" id="adLogList" style="max-height:600px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer in admin -->
+      <footer class="lp-footer no-print" style="margin-top:auto;padding:32px 0 18px">
+        <div class="container">
+          <div class="footer-bottom" style="border:none;margin:0;padding:0">
+            <small>© 2026 GASS Terus! · GA Department · MRT Jakarta</small>
+            <small>QM Unit · v2.0</small>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+</section>
+
+
+<!-- ====================== REPORT PAGE (printable) ====================== -->
+<section id="page-report" class="page">
+  <div class="container my-4 no-print">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <button class="btn-outline-grad" onclick="backToEmp()"><i class="bi bi-arrow-left"></i> Kembali</button>
+      <div class="d-flex gap-2">
+        <button class="btn-grad" onclick="window.print()"><i class="bi bi-printer me-1"></i>Cetak / Simpan PDF</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div id="reportContent"></div>
+  </div>
+</section>
+
+<!-- ====================== MODALS ====================== -->
+<!-- POPUP NOTIFICATION (landing/cpanel) -->
+<div class="popup-overlay" id="popupModal">
+  <div class="popup-box">
+    <div class="popup-head"><h5 id="popupTitleR"></h5><button class="close-x" onclick="closePopup()"><i class="bi bi-x"></i></button></div>
+    <div class="popup-body" id="popupBodyR"></div>
+    <div class="popup-foot"><button class="btn-grad" onclick="closePopup()">Mengerti</button></div>
+  </div>
+</div>
+
+<!-- KPI FILL MODAL (Employee) -->
+<div class="modal-x" id="kpiFillModal">
+  <div class="modal-x-box" style="max-width:780px">
+    <div class="modal-x-head">
+      <h5><i class="bi bi-pencil-square text-grad me-2"></i><span id="fmTitle">Isi Penilaian KPI</span></h5>
+      <button class="close-x" style="background:#F1F5F9" onclick="closeKpiFill()"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-x-body">
+      <div class="row g-2 mb-3">
+        <div class="col-md-4"><label class="form-label">Karyawan</label><input class="form-control" id="fmEmp" readonly></div>
+        <div class="col-md-4"><label class="form-label">NIK</label><input class="form-control" id="fmNik" readonly></div>
+        <div class="col-md-4"><label class="form-label">Bobot KPI</label><input class="form-control" id="fmBobot" readonly></div>
+      </div>
+      <div class="cardx mb-3" style="background:var(--grad-soft);border:none">
+        <div class="cardx-b">
+          <small class="text-muted fw-7">FORMULA / METODE PENILAIAN</small>
+          <div id="fmFormula" class="mt-1"></div>
+        </div>
+      </div>
+      <h6 class="fw-7 mb-2">Input Realisasi per Key Result</h6>
+      <div id="fmKrList"></div>
+
+      <div class="cardx mt-3">
+        <div class="cardx-b">
+          <label class="form-label fw-7">Upload Bukti Pendukung</label>
+          <input type="file" class="form-control mb-2" id="fmEvidence" accept="image/*,application/pdf">
+          <textarea class="form-control" id="fmEvNote" rows="2" placeholder="Keterangan bukti (opsional)..."></textarea>
+        </div>
+      </div>
+
+      <div class="cardx mt-3">
+        <div class="cardx-b">
+          <label class="form-label fw-7">Upload Tanda Tangan Digital</label>
+          <input type="file" class="form-control" id="fmTtd" accept="image/*">
+        </div>
+      </div>
+
+      <div class="form-check mt-3 p-3 bg-light rounded">
+        <input class="form-check-input" type="checkbox" id="fmDeclare" style="transform:scale(1.2)">
+        <label class="form-check-label fw-7 ms-2">Saya menyatakan bahwa data yang diisi adalah <b>BENAR</b> dan dapat dipertanggungjawabkan.</label>
+      </div>
+
+      <div class="chip chip-warning mt-3 d-block" id="fmEditNote" style="display:none;width:100%;justify-content:flex-start"></div>
+    </div>
+    <div class="modal-x-foot">
+      <button class="btn-outline-grad" onclick="closeKpiFill()">Batal</button>
+      <button class="btn-grad" id="fmSubmitButton" onclick="submitKpiFill()"><i class="bi bi-check2-circle me-1"></i><span id="fmSubmitBtn">Submit Penilaian</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- KPI EDIT (Admin) MODAL -->
+<div class="modal-x" id="kpiAdminModal">
+  <div class="modal-x-box">
+    <div class="modal-x-head">
+      <h5><i class="bi bi-bullseye text-grad me-2"></i><span id="adKMtitle">Tambah Objective KPI</span></h5>
+      <button class="close-x" style="background:#F1F5F9" onclick="document.getElementById('kpiAdminModal').classList.remove('show')"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-x-body">
+      <div class="row g-3">
+        <div class="col-md-8"><label class="form-label">Nama Objective</label><input class="form-control" id="akmName" placeholder="Contoh: Terlaksananya budget controlling"></div>
+        <div class="col-md-4"><label class="form-label">Periode</label><select class="form-select" id="akmPeriod"></select></div>
+        <div class="col-md-6"><label class="form-label">Tipe Target</label>
+          <select class="form-select" id="akmTargetType">
+            <option value="annual">Tahunan</option>
+            <option value="monthly">Bulanan</option>
+            <option value="score">Skor Langsung (0-5)</option>
+          </select>
+        </div>
+        <div class="col-md-6"><label class="form-label">Tipe Skoring</label>
+          <select class="form-select" id="akmScoreType">
+            <option value="weighted">Bobot Key Result</option>
+            <option value="direct">Skor Langsung (input nilai = skor)</option>
+          </select>
+        </div>
+        <div class="col-12"><label class="form-label">Formula / Metode</label><textarea class="form-control" id="akmFormula" rows="2"></textarea></div>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0 fw-7">Key Results <small class="text-muted">(total bobot harus = 100%)</small></h6>
+        <button class="btn-outline-grad btn-sm" onclick="akmAddKr()"><i class="bi bi-plus-lg me-1"></i>Tambah KR</button>
+      </div>
+      <div id="akmKrList"></div>
+      <div class="text-end mt-2"><b>Total Bobot KR: </b><span id="akmTotalKr" class="text-grad fw-7">0</span>%</div>
+    </div>
+    <div class="modal-x-foot">
+      <button class="btn-outline-grad" onclick="document.getElementById('kpiAdminModal').classList.remove('show')">Batal</button>
+      <button class="btn-grad" onclick="saveAdKpi()"><i class="bi bi-save me-1"></i>Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER MODAL -->
+<div class="modal-x" id="userModal">
+  <div class="modal-x-box" style="max-width:560px">
+    <div class="modal-x-head">
+      <h5><i class="bi bi-person-plus text-grad me-2"></i><span id="umTitle">Tambah User</span></h5>
+      <button class="close-x" style="background:#F1F5F9" onclick="document.getElementById('userModal').classList.remove('show')"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-x-body">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Username</label><input class="form-control" id="umU"></div>
+        <div class="col-md-6"><label class="form-label">Password</label><input class="form-control" id="umP" type="text" placeholder="(kosongkan jika tidak ubah)"></div>
+        <div class="col-md-6"><label class="form-label">Nama Lengkap</label><input class="form-control" id="umN"></div>
+        <div class="col-md-6"><label class="form-label">NIK</label><input class="form-control" id="umNik"></div>
+        <div class="col-12"><label class="form-label">Jabatan</label><input class="form-control" id="umJ"></div>
+        <div class="col-md-6"><label class="form-label">Role</label>
+          <select class="form-select" id="umR">
+            <option value="employee">Karyawan</option>
+            <option value="admin">Admin</option>
+            <option value="superadmin">Superadmin</option>
+          </select>
+        </div>
+        <div class="col-md-6"><label class="form-label">Status</label>
+          <select class="form-select" id="umS"><option value="1">Aktif</option><option value="0">Non-aktif</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-x-foot">
+      <button class="btn-outline-grad" onclick="document.getElementById('userModal').classList.remove('show')">Batal</button>
+      <button class="btn-grad" onclick="saveUser()"><i class="bi bi-save me-1"></i>Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERIOD MODAL -->
+<div class="modal-x" id="periodModal">
+  <div class="modal-x-box" style="max-width:480px">
+    <div class="modal-x-head">
+      <h5><i class="bi bi-calendar-event text-grad me-2"></i><span id="pmTitle">Tambah Periode KPI</span></h5>
+      <button class="close-x" style="background:#F1F5F9" onclick="document.getElementById('periodModal').classList.remove('show')"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-x-body">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Tahun</label><input class="form-control" id="pmY" type="number"></div>
+        <div class="col-md-6"><label class="form-label">Status</label>
+          <select class="form-select" id="pmS">
+            <option value="active">Aktif</option>
+            <option value="closed">Ditutup</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+        <div class="col-12"><label class="form-label">Nama Periode</label><input class="form-control" id="pmN" placeholder="Contoh: Periode KPI 2027"></div>
+      </div>
+    </div>
+    <div class="modal-x-foot">
+      <button class="btn-outline-grad" onclick="document.getElementById('periodModal').classList.remove('show')">Batal</button>
+      <button class="btn-grad" onclick="savePeriod()"><i class="bi bi-save me-1"></i>Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastWrap" style="position:fixed;top:80px;right:24px;z-index:3000;display:flex;flex-direction:column;gap:8px"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =================================================================
+   GASS Terus! — KPI Management System
+   Single-file SPA · Supabase (PostgreSQL) as DB
+================================================================= */
+
+/* ==================== INITIAL SEED DATA ==================== */
+const SEED = {
+  users: [
+    // Superadmin
+    { id:1, username:'arizki', password:'arizki01', name:'Rizki Aziz Radyantama', nik:'10395', jabatan:'Office Quality Facility Specialist', role:'superadmin', status:'active' },
+    // Admin & employees (default password: nik)
+    { id:2,  username:'ardhan',   password:'217051224', name:'M. Ardhan Rafsanjani', nik:'217051224', jabatan:'General Affairs Department Head', role:'admin', status:'active' },
+    { id:3,  username:'maya',     password:'218022377', name:'Maya Satih Kanteyan', nik:'218022377', jabatan:'Site Office and Head Office Facility Operation Section Head', role:'admin', status:'active' },
+    { id:4,  username:'waziruddin', password:'10077',   name:'Waziruddin', nik:'10077', jabatan:'Depot Office Facility Operation Section Head', role:'admin', status:'active' },
+    { id:5,  username:'annisa',   password:'10003',    name:'Annisa Mayangsari', nik:'10003', jabatan:'Site Office and Head Office Facility Operation Specialist', role:'employee', status:'active' },
+    { id:6,  username:'rakhmat',  password:'213031040', name:'Rakhmat', nik:'213031040', jabatan:'Site Office and Head Office Facility Operation Specialist', role:'employee', status:'active' },
+    { id:7,  username:'agung',    password:'218111585', name:'Agung Prasetyo Wicaksono', nik:'218111585', jabatan:'Site Office and Head Office Facility Operation Specialist', role:'employee', status:'active' },
+    { id:8,  username:'siti',     password:'10025',    name:'Siti Zahratus Solihat', nik:'10025', jabatan:'Site Office and Head Office Facility Operation Specialist', role:'employee', status:'active' },
+    { id:9,  username:'abdul',    password:'217111362', name:'Abdul Ajid', nik:'217111362', jabatan:'Depot Office Facility Operation Specialist', role:'employee', status:'active' },
+    { id:10, username:'dharisa',  password:'10523',    name:'Dharisa Inayah Ramadhan', nik:'10523', jabatan:'Depot Office Facility Operation Specialist', role:'employee', status:'active' },
+  ],
+  periods: [
+    { id:1, year:2025, name:'Periode KPI 2025', status:'closed' },
+    { id:2, year:2026, name:'Periode KPI 2026', status:'active' },
+  ],
+  // KPI Objectives — periode 2026
+  objectives: [
+    { id:101, period_id:2, name:'Terlaksananya kegiatan budget controlling', formula:'Realisasi jumlah kegiatan terserap berdasarkan RKA; Efisiensi anggaran; Laporan tepat waktu.', target_type:'annual', score_type:'weighted' },
+    { id:102, period_id:2, name:'Tercapainya success rate pengelolaan layanan umum', formula:'Efektivitas Departemen GA dalam menanggapi permintaan layanan (SLA).', target_type:'annual', score_type:'weighted' },
+    { id:103, period_id:2, name:'Indeks Kepuasan Stakeholder', formula:'Pencapaian Indeks Kepuasan Stakeholder.', target_type:'annual', score_type:'weighted' },
+    { id:104, period_id:2, name:'Jumlah Inisiatif Peningkatan Proses atau Efisiensi', formula:'Kontribusi staf dalam mengidentifikasi ide perbaikan proses kerja.', target_type:'annual', score_type:'weighted' },
+    { id:105, period_id:2, name:'Petty Cash Handling', formula:'Akurasi saldo dan pencatatan kas kecil.', target_type:'monthly', score_type:'weighted' },
+    { id:106, period_id:2, name:'Tingkat Kepatuhan Prosedur Keselamatan', formula:'Implementasi kebijakan K3 di lingkungan kantor.', target_type:'annual', score_type:'weighted' },
+    { id:107, period_id:2, name:'Pengelolaan Inventaris Aset Kantor', formula:'Keakuratan data aset kantor vs fisik di lapangan.', target_type:'annual', score_type:'weighted' },
+    { id:108, period_id:2, name:'Tingkat Kesesuaian Rencana Pengadaan', formula:'Jumlah pengadaan dengan waktu sesuai RPBJ.', target_type:'annual', score_type:'weighted' },
+    { id:109, period_id:2, name:'Penyediaan Kantor Pusat PT MRT Jakarta', formula:'Tersedianya kajian perpindahan kantor pusat.', target_type:'annual', score_type:'weighted' },
+    { id:110, period_id:2, name:'Optimasi Perjalanan Dinas Karyawan', formula:'Development integrasi perjalanan dinas pada platform milik PT MRTJ.', target_type:'annual', score_type:'weighted' },
+    { id:111, period_id:2, name:'Tingkat pemenuhan IDP', formula:'Realisasi pemenuhan IDP.', target_type:'score', score_type:'direct' },
+    { id:112, period_id:2, name:'Indeks Knowledge Management', formula:'Tercapainya Skor KM Index.', target_type:'score', score_type:'direct' },
+    { id:113, period_id:2, name:'Indeks GRC', formula:'Terselesaikannya 100% pemenuhan GRC Direktorat.', target_type:'annual', score_type:'direct' },
+    { id:114, period_id:2, name:'Penyelesaian Temuan Audit', formula:'Terselesaikannya 100% temuan audit.', target_type:'annual', score_type:'direct' },
+  ],
+  // Key Results
+  key_results: [
+    // 101 - budget controlling
+    {id:1001, objective_id:101, description:'Tingkat realisasi penyerapan anggaran', target:80,  unit:'%',     relative_weight:40},
+    {id:1002, objective_id:101, description:'Cost Efficiency non subsidi ((RKA-Biaya)/RKA)*100%', target:5, unit:'%', relative_weight:20},
+    {id:1003, objective_id:101, description:'Kedisiplinan pelaporan (max tgl 15 tiap bulan)', target:12, unit:'Bulan', relative_weight:40},
+    // 102 - success rate
+    {id:1011, objective_id:102, description:'Response time & SLA permintaan terpenuhi', target:100, unit:'%', relative_weight:20},
+    {id:1012, objective_id:102, description:'Indeks Kepuasan Pelanggan Overall', target:80, unit:'Skor', relative_weight:30},
+    {id:1013, objective_id:102, description:'Indeks Kepuasan Pelanggan per Specialist', target:80, unit:'Skor', relative_weight:30},
+    {id:1014, objective_id:102, description:'Zero skip request per tahun', target:0, unit:'Kali', relative_weight:20},
+    // 103
+    {id:1021, objective_id:103, description:'Pencapaian Indeks Kepuasan Stakeholder', target:100, unit:'%', relative_weight:100},
+    // 104 - Inisiatif
+    {id:1031, objective_id:104, description:'Presentasi project charter ke Kadep', target:1, unit:'Dokumen', relative_weight:20},
+    {id:1032, objective_id:104, description:'Implementasi proyek 100%', target:100, unit:'%', relative_weight:30},
+    {id:1033, objective_id:104, description:'Dokumentasi & laporan akhir', target:100, unit:'%', relative_weight:20},
+    {id:1034, objective_id:104, description:'Membuat/Review SOP/IK/SE terkait', target:1, unit:'Dokumen', relative_weight:30},
+    // 105 - petty cash
+    {id:1041, objective_id:105, description:'Kepatuhan dokumentasi (Invoice/Bon)', target:100, unit:'%', relative_weight:20},
+    {id:1042, objective_id:105, description:'Laporan rekonsiliasi petty cash tiap bulan', target:12, unit:'Bulan', relative_weight:30},
+    {id:1043, objective_id:105, description:'Akurasi rekonsiliasi balance', target:100, unit:'%', relative_weight:30},
+    {id:1044, objective_id:105, description:'Tidak ada keterlambatan pengisian kembali', target:100, unit:'%', relative_weight:20},
+    // 106 - keselamatan
+    {id:1051, objective_id:106, description:'Laporan inspeksi fasilitas & K3', target:4, unit:'Laporan', relative_weight:30},
+    {id:1052, objective_id:106, description:'Zero insiden keamanan & keselamatan (LTI)', target:0, unit:'Kasus', relative_weight:30},
+    {id:1053, objective_id:106, description:'Penyelesaian tindak lanjut audit IMS (≠ PTP)', target:100, unit:'%', relative_weight:30},
+    {id:1054, objective_id:106, description:'Drill simulasi internal GA min 1x/tahun', target:1, unit:'Kali', relative_weight:10},
+    // 107 - inventaris
+    {id:1061, objective_id:107, description:'Terlaksananya opname aset 1x', target:1, unit:'Kali', relative_weight:25},
+    {id:1062, objective_id:107, description:'Akurasi opname > 90%', target:90, unit:'%', relative_weight:25},
+    {id:1063, objective_id:107, description:'Database aset GA dengan foto terbaru', target:100, unit:'%', relative_weight:25},
+    {id:1064, objective_id:107, description:'Mutasi & peminjaman barang dengan BAST', target:100, unit:'%', relative_weight:25},
+    // 108 - pengadaan
+    {id:1071, objective_id:108, description:'100% pengadaan sesuai semester di RPBJ', target:100, unit:'%', relative_weight:30},
+    {id:1072, objective_id:108, description:'Pengadaan di luar RPBJ < 30%', target:30, unit:'%', relative_weight:30},
+    {id:1073, objective_id:108, description:'Pembatalan pengadaan sesuai prosedur', target:100, unit:'%', relative_weight:20},
+    {id:1074, objective_id:108, description:'Tidak ada penumpukan pengadaan di Q4', target:100, unit:'%', relative_weight:20},
+    // 109 - kantor pusat
+    {id:1081, objective_id:109, description:'Pengadaan vendor konsultan design', target:100, unit:'%', relative_weight:25},
+    {id:1082, objective_id:109, description:'Concept design fitout WN dan TH', target:100, unit:'%', relative_weight:25},
+    {id:1083, objective_id:109, description:'Persetujuan design fitout', target:100, unit:'%', relative_weight:25},
+    {id:1084, objective_id:109, description:'Laporan Space Planning', target:100, unit:'%', relative_weight:25},
+    // 110 - perjalanan dinas
+    {id:1091, objective_id:110, description:'Protokol Integrasi/Sinkronisasi Workflow', target:1, unit:'Dokumen', relative_weight:40},
+    {id:1092, objective_id:110, description:'Fitur utama (Pemesanan, Approval, Budgeting) deploy', target:100, unit:'%', relative_weight:40},
+    {id:1093, objective_id:110, description:'Dokumentasi project tercatat', target:100, unit:'%', relative_weight:20},
+    // 111-114 direct
+    {id:1101, objective_id:111, description:'Realisasi IDP (Skor 0-5)', target:5, unit:'Skor', relative_weight:100},
+    {id:1111, objective_id:112, description:'Skor KM Index (Target 4)', target:4, unit:'Skor', relative_weight:100},
+    {id:1121, objective_id:113, description:'Skor GRC (Target 100%)', target:100, unit:'%', relative_weight:100},
+    {id:1131, objective_id:114, description:'Penyelesaian Audit (Target 100%)', target:100, unit:'%', relative_weight:100},
+  ],
+  // Weights per user (period 2026)
+  weights: [
+    // Ardhan (id=2)
+    {user_id:2, objective_id:101, weight:10},{user_id:2, objective_id:102, weight:10},{user_id:2, objective_id:103, weight:2.5},{user_id:2, objective_id:104, weight:10},{user_id:2, objective_id:105, weight:10},{user_id:2, objective_id:106, weight:10},{user_id:2, objective_id:107, weight:10},{user_id:2, objective_id:108, weight:7.5},{user_id:2, objective_id:109, weight:10},{user_id:2, objective_id:110, weight:10},{user_id:2, objective_id:111, weight:2.5},{user_id:2, objective_id:112, weight:2.5},{user_id:2, objective_id:113, weight:2.5},{user_id:2, objective_id:114, weight:2.5},
+    // Maya (id=3)
+    {user_id:3, objective_id:101, weight:10},{user_id:3, objective_id:102, weight:10},{user_id:3, objective_id:103, weight:2.5},{user_id:3, objective_id:104, weight:10},{user_id:3, objective_id:105, weight:10},{user_id:3, objective_id:106, weight:10},{user_id:3, objective_id:107, weight:10},{user_id:3, objective_id:108, weight:7.5},{user_id:3, objective_id:109, weight:10},{user_id:3, objective_id:110, weight:10},{user_id:3, objective_id:111, weight:2.5},{user_id:3, objective_id:112, weight:2.5},{user_id:3, objective_id:113, weight:2.5},{user_id:3, objective_id:114, weight:2.5},
+    // Waziruddin (id=4)
+    {user_id:4, objective_id:101, weight:10},{user_id:4, objective_id:102, weight:10},{user_id:4, objective_id:103, weight:2.5},{user_id:4, objective_id:104, weight:10},{user_id:4, objective_id:105, weight:10},{user_id:4, objective_id:106, weight:10},{user_id:4, objective_id:107, weight:10},{user_id:4, objective_id:108, weight:7.5},{user_id:4, objective_id:109, weight:10},{user_id:4, objective_id:110, weight:10},{user_id:4, objective_id:111, weight:2.5},{user_id:4, objective_id:112, weight:2.5},{user_id:4, objective_id:113, weight:2.5},{user_id:4, objective_id:114, weight:2.5},
+    // Rizki (id=1)
+    {user_id:1, objective_id:101, weight:10},{user_id:1, objective_id:102, weight:10},{user_id:1, objective_id:103, weight:2.5},{user_id:1, objective_id:104, weight:12.5},{user_id:1, objective_id:106, weight:15},{user_id:1, objective_id:108, weight:10},{user_id:1, objective_id:109, weight:15},{user_id:1, objective_id:110, weight:15},{user_id:1, objective_id:111, weight:2.5},{user_id:1, objective_id:112, weight:2.5},{user_id:1, objective_id:113, weight:2.5},{user_id:1, objective_id:114, weight:2.5},
+    // Annisa (id=5)
+    {user_id:5, objective_id:101, weight:10},{user_id:5, objective_id:102, weight:25},{user_id:5, objective_id:103, weight:2.5},{user_id:5, objective_id:104, weight:20},{user_id:5, objective_id:105, weight:22.5},{user_id:5, objective_id:108, weight:10},{user_id:5, objective_id:111, weight:2.5},{user_id:5, objective_id:112, weight:2.5},{user_id:5, objective_id:113, weight:2.5},{user_id:5, objective_id:114, weight:2.5},
+    // Rakhmat (id=6)
+    {user_id:6, objective_id:102, weight:20},{user_id:6, objective_id:103, weight:2.5},{user_id:6, objective_id:104, weight:20},{user_id:6, objective_id:106, weight:20},{user_id:6, objective_id:107, weight:10},{user_id:6, objective_id:108, weight:7.5},{user_id:6, objective_id:109, weight:10},{user_id:6, objective_id:111, weight:2.5},{user_id:6, objective_id:112, weight:2.5},{user_id:6, objective_id:113, weight:2.5},{user_id:6, objective_id:114, weight:2.5},
+    // Agung (id=7)
+    {user_id:7, objective_id:102, weight:20},{user_id:7, objective_id:103, weight:2.5},{user_id:7, objective_id:104, weight:20},{user_id:7, objective_id:106, weight:20},{user_id:7, objective_id:107, weight:10},{user_id:7, objective_id:108, weight:7.5},{user_id:7, objective_id:109, weight:10},{user_id:7, objective_id:111, weight:2.5},{user_id:7, objective_id:112, weight:2.5},{user_id:7, objective_id:113, weight:2.5},{user_id:7, objective_id:114, weight:2.5},
+    // Siti (id=8)
+    {user_id:8, objective_id:101, weight:20},{user_id:8, objective_id:102, weight:15},{user_id:8, objective_id:103, weight:2.5},{user_id:8, objective_id:104, weight:15},{user_id:8, objective_id:105, weight:20},{user_id:8, objective_id:108, weight:7.5},{user_id:8, objective_id:110, weight:10},{user_id:8, objective_id:111, weight:2.5},{user_id:8, objective_id:112, weight:2.5},{user_id:8, objective_id:113, weight:2.5},{user_id:8, objective_id:114, weight:2.5},
+    // Abdul (id=9)
+    {user_id:9, objective_id:102, weight:20},{user_id:9, objective_id:103, weight:2.5},{user_id:9, objective_id:104, weight:25},{user_id:9, objective_id:106, weight:20},{user_id:9, objective_id:107, weight:15},{user_id:9, objective_id:108, weight:7.5},{user_id:9, objective_id:111, weight:2.5},{user_id:9, objective_id:112, weight:2.5},{user_id:9, objective_id:113, weight:2.5},{user_id:9, objective_id:114, weight:2.5},
+    // Dharisa (id=10)
+    {user_id:10, objective_id:101, weight:10},{user_id:10, objective_id:102, weight:25},{user_id:10, objective_id:103, weight:2.5},{user_id:10, objective_id:104, weight:20},{user_id:10, objective_id:105, weight:22.5},{user_id:10, objective_id:108, weight:10},{user_id:10, objective_id:111, weight:2.5},{user_id:10, objective_id:112, weight:2.5},{user_id:10, objective_id:113, weight:2.5},{user_id:10, objective_id:114, weight:2.5},
+  ],
+  submissions: [],
+  submission_details: [],
+  logs: [],
+  notifications: [],
+  popup: {
+    title:'Selamat Datang di GASS Terus! 👋',
+    content:'<p>Periode <b>KPI 2026</b> sudah aktif. Mohon segera melengkapi penilaian KPI Anda <b>sebelum 31 Desember 2026</b>.</p><p class="mb-0">Hubungi <b>QM Unit</b> jika mengalami kendala.</p>',
+    target:'both', type:'info', active:1
+  }
+};
+
+/* =====================================================================
+   KONFIGURASI SUPABASE  —  ISI DUA BARIS DI BAWAH INI
+   Ambil dari dashboard Supabase: Project Settings  >  API
+   - url     : Project URL          (mis. https://abcd.supabase.co)
+   - anonKey : Project API Key "anon public"
+   ===================================================================== */
+const SUPABASE_CONFIG = {
+  url:     'https://ahcwyvjfzrapsedzaalz.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3d5dmpmenJhcHNlZHphYWx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzODc3MjcsImV4cCI6MjA5NDk2MzcyN30.q-l-XWPyeLysluS3XF5Ow-5oCfabSNn1bPy51QW3KDg'
+};
+
+/* ==================== SUPABASE DATA LAYER ==================== */
+// Pemetaan nama koleksi di aplikasi  ->  nama tabel di Supabase
+const TBL = {
+  users:'users', periods:'kpi_periods', objectives:'kpi_objectives',
+  key_results:'kpi_key_results', weights:'employee_kpi_weights',
+  submissions:'kpi_submissions', submission_details:'kpi_submission_details',
+  logs:'activity_logs', notifications:'notifications',
+  popup:'popup_notifications'
+};
+
+let sb = null;            // klien Supabase
+let DB = {};              // cache data di memori (sumber data untuk render)
+
+function configValid(){
+  return SUPABASE_CONFIG.url
+      && SUPABASE_CONFIG.anonKey
+      && !SUPABASE_CONFIG.url.includes('YOUR-PROJECT')
+      && !SUPABASE_CONFIG.anonKey.includes('YOUR-ANON');
+}
+
+// Ambil seluruh data dari Supabase ke cache DB
+async function loadDb(){
+  const keys = Object.keys(TBL);
+  const res = await Promise.all(keys.map(k => sb.from(TBL[k]).select('*')));
+  const db = {};
+  keys.forEach((k,i) => {
+    if(res[i].error) throw new Error('Tabel ' + TBL[k] + ': ' + res[i].error.message);
+    db[k] = res[i].data || [];
+  });
+  const pop = await sb.from('popup_notifications').select('*').limit(1);
+  if(pop.error) throw new Error('Tabel popup_notifications: ' + pop.error.message);
+  db.popup = (pop.data && pop.data[0]) ||
+             {id:1, title:'', content:'', target:'both', type:'info', active:true};
+  return db;
+}
+
+// INSERT satu baris -> kembalikan baris (lengkap dengan id dari Postgres)
+async function dbInsert(key, row){
+  const payload = {...row}; delete payload.id;   // id di-assign Postgres
+  const { data, error } = await sb.from(TBL[key]).insert(payload).select();
+  if(error) throw new Error(error.message);
+  DB[key].push(data[0]);
+  return data[0];
+}
+// UPDATE berdasarkan id
+async function dbUpdate(key, id, changes){
+  const { data, error } = await sb.from(TBL[key]).update(changes).eq('id', id).select();
+  if(error) throw new Error(error.message);
+  const i = DB[key].findIndex(x => x.id === id);
+  if(i >= 0) DB[key][i] = data[0];
+  return data[0];
+}
+// DELETE berdasarkan id (anak-anaknya ikut terhapus via FK ON DELETE CASCADE)
+async function dbDelete(key, id){
+  const { error } = await sb.from(TBL[key]).delete().eq('id', id);
+  if(error) throw new Error(error.message);
+  DB[key] = DB[key].filter(x => x.id !== id);
+}
+
+function saveDb(){ /* tidak dipakai lagi: setiap perubahan langsung ke Supabase */ }
+function resetDb(){ if(confirm('Muat ulang data dari Supabase?')) location.reload(); }
+
+/* ==================== AUTH ==================== */
+const SESSION_KEY = 'gass_session';
+function getSession(){ try{return JSON.parse(sessionStorage.getItem(SESSION_KEY))||null}catch(e){return null} }
+function setSession(u){ sessionStorage.setItem(SESSION_KEY, JSON.stringify(u)); }
+function clearSession(){ sessionStorage.removeItem(SESSION_KEY); }
+
+function doLogin(){
+  const u = document.getElementById('liU').value.trim();
+  const p = document.getElementById('liP').value;
+  const found = DB.users.find(x => x.username.toLowerCase()===u.toLowerCase() && x.password===p && x.status==='active');
+  const err = document.getElementById('liErr');
+  if(!found){ err.style.display='inline-flex'; err.innerHTML='<i class="bi bi-exclamation-triangle me-1"></i> Username atau password salah / akun non-aktif.'; return; }
+  err.style.display='none';
+  setSession({id:found.id, name:found.name, role:found.role, username:found.username, nik:found.nik, jabatan:found.jabatan});
+  logActivity(found.id, 'LOGIN', `${found.name} login ke sistem.`);
+  pushNotif(found.id, 'info', `Selamat datang kembali, ${found.name.split(' ')[0]}!`);
+  toast('Login berhasil', 'success');
+  if(found.role==='employee') route('employee');
+  else route('admin');
+}
+
+function doLogout(){
+  const s = getSession(); if(s) logActivity(s.id, 'LOGOUT', `${s.name} logout dari sistem.`);
+  clearSession(); toast('Anda telah logout','info'); route('landing');
+}
+
+/* ==================== ROUTING ==================== */
+function route(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.bell-panel,.profile-panel').forEach(x=>x.classList.remove('show'));
+  window.scrollTo(0,0);
+  if(page==='landing'){ renderLanding(); maybeShowPopup('landing'); }
+  if(page==='employee'){ initEmployee(); maybeShowPopup('cpanel'); }
+  if(page==='admin'){ initAdmin(); maybeShowPopup('cpanel'); }
+}
+function goLogin(){ route('login'); }
+
+/* ==================== UTILS ==================== */
+function toast(msg, type='info'){
+  const w = document.getElementById('toastWrap');
+  const colors = {success:'#066B3A', warning:'#8A5A07', danger:'#9B1C1C', info:'#003F87'};
+  const bg = {success:'#E6F8EE', warning:'#FEF6E7', danger:'#FDECEC', info:'#E6F0FB'};
+  const ic = {success:'check-circle-fill', warning:'exclamation-triangle-fill', danger:'x-circle-fill', info:'info-circle-fill'};
+  const t = document.createElement('div');
+  t.style.cssText = `background:${bg[type]};color:${colors[type]};padding:11px 16px;border-radius:10px;box-shadow:0 8px 22px -10px rgba(0,0,0,.2);font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:8px;animation:popIn .25s`;
+  t.innerHTML = `<i class="bi bi-${ic[type]}"></i>${msg}`;
+  w.appendChild(t); setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(20px)';setTimeout(()=>t.remove(),300)},2800);
+}
+function togglePw(id,btn){
+  const i = document.getElementById(id); 
+  if(i.type==='password'){i.type='text';btn.innerHTML='<i class="bi bi-eye-slash"></i>'} 
+  else{i.type='password';btn.innerHTML='<i class="bi bi-eye"></i>'}
+}
+function nextId(arr){ return arr.length ? Math.max(...arr.map(x=>x.id||0))+1 : 1; }
+function initials(s){ return s.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+function fmtDate(d){ const x=new Date(d); return x.toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtDateShort(d){ const x=new Date(d); return x.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+function computeSf(ratio){
+  if(ratio >= 1.199) return 120;
+  if(ratio > 1.001)  return 110;
+  if(ratio >= 0.999) return 100;
+  if(ratio >= 0.8)   return 90;
+  return 80;
+}
+function activePeriod(){ return DB.periods.find(p=>p.status==='active') || DB.periods[DB.periods.length-1]; }
+function objKrs(oid){ return DB.key_results.filter(k=>k.objective_id===oid); }
+function userWeights(uid, pid){
+  return DB.weights.filter(w=>w.user_id===uid).map(w=>{ const obj=DB.objectives.find(o=>o.id===w.objective_id); return obj && obj.period_id===pid ? {...w,obj} : null }).filter(Boolean);
+}
+function findSubmission(uid, oid){ return DB.submissions.find(s=>s.user_id===uid && s.objective_id===oid); }
+async function logActivity(uid, action, desc){
+  try{ await dbInsert('logs', {user_id:uid, action, description:desc}); }
+  catch(e){ console.warn('logActivity gagal:', e.message); }
+}
+async function pushNotif(uid, type, msg){
+  try{ await dbInsert('notifications', {user_id:uid, type, message:msg, is_read:false}); }
+  catch(e){ console.warn('pushNotif gagal:', e.message); }
+}
+
+/* ==================== POPUP NOTIFICATION ==================== */
+function maybeShowPopup(where){
+  const p = DB.popup;
+  if(!p || !p.active) return;
+  if(p.target!=='both' && p.target!==where) return;
+  // show once per session per popup hash
+  let _h=0; const _str=(p.title||'')+'|'+(p.content||'');
+  for(let i=0;i<_str.length;i++){ _h=((_h<<5)-_h+_str.charCodeAt(i))|0; }
+  const hash = Math.abs(_h).toString(36);
+  const seenKey = 'gass_popup_seen_'+hash+'_'+where;
+  if(sessionStorage.getItem(seenKey)) return;
+  document.getElementById('popupTitleR').innerText = p.title;
+  document.getElementById('popupBodyR').innerHTML = p.content;
+  document.getElementById('popupModal').classList.add('show');
+  sessionStorage.setItem(seenKey,'1');
+}
+function closePopup(){ document.getElementById('popupModal').classList.remove('show'); }
+function previewPopup(){
+  document.getElementById('popupTitleR').innerText = document.getElementById('popTitle').value;
+  document.getElementById('popupBodyR').innerHTML = document.getElementById('popContent').value;
+  document.getElementById('popupModal').classList.add('show');
+}
+async function savePopup(){
+  const changes = {
+    title:   document.getElementById('popTitle').value,
+    content: document.getElementById('popContent').value,
+    target:  document.getElementById('popTarget').value,
+    type:    document.getElementById('popType').value,
+    active:  document.getElementById('popActive').value === '1'
+  };
+  try{
+    const row = await dbUpdate('popup', DB.popup.id, changes);
+    DB.popup = row;
+    Object.keys(sessionStorage).forEach(k=>{ if(k.startsWith('gass_popup_seen_')) sessionStorage.removeItem(k); });
+    await logActivity(getSession().id, 'UPDATE_POPUP', `Mengubah pengaturan popup notifikasi (target: ${DB.popup.target})`);
+    toast('Pengaturan popup tersimpan','success');
+  }catch(e){ toast('Gagal menyimpan popup: '+e.message,'danger'); }
+}
+
+/* ==================== SCROLL UTILS ==================== */
+function scrollToSec(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
+/* ==================== LANDING PAGE RENDER ==================== */
+function renderLanding(){
+  const period = activePeriod();
+  const objs = DB.objectives.filter(o=>o.period_id===period.id);
+  const wrap = document.getElementById('landingDeptList');
+  if(!objs.length){ wrap.innerHTML='<div class="empty-state"><i class="bi bi-inbox"></i><div>Belum ada KPI aktif untuk periode ini.</div></div>'; return; }
+  wrap.innerHTML = objs.map((o,i)=>{
+    const krs = objKrs(o.id);
+    const tgType = {monthly:'Bulanan',annual:'Tahunan',score:'Skor 0-5'}[o.target_type]||'-';
+    return `<div class="accord-item">
+      <div class="accord-head" onclick="this.parentElement.classList.toggle('open')">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;color:var(--text)">${i+1}. ${o.name}</div>
+          <small style="color:var(--text-muted)"><i class="bi bi-tag"></i> ${tgType} · <i class="bi bi-list-ol"></i> ${krs.length} Key Result</small>
+        </div>
+        <i class="bi bi-plus-circle"></i>
+      </div>
+      <div class="accord-body">
+        <div class="mt-3 mb-2"><b>Formula:</b> <span class="text-muted">${o.formula}</span></div>
+        <table class="kpi-table" style="margin-top:6px">
+          <thead><tr><th style="width:30px">#</th><th>Key Result</th><th style="width:90px">Target</th><th style="width:80px">Bobot</th></tr></thead>
+          <tbody>${krs.map((k,j)=>`<tr><td>${j+1}</td><td>${k.description}</td><td>${k.target} ${k.unit}</td><td><b>${k.relative_weight}%</b></td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ==================== EMPLOYEE DASHBOARD ==================== */
+async function initEmployee(){
+  const s = getSession();
+  if(!s){ route('login'); return; }
+  document.getElementById('empAvatar').innerText = initials(s.name);
+  document.getElementById('empProfileName').innerText = s.name.split(' ')[0];
+  document.getElementById('empPiName').innerText = s.name;
+  document.getElementById('empPiRole').innerText = s.jabatan + ' · ' + s.role;
+  document.getElementById('empWelcomeName').innerText = 'Halo, '+s.name.split(' ')[0]+'!';
+  const period = activePeriod();
+  document.getElementById('empCurrentYear').innerText = period.year;
+  renderEmpHome();
+  renderEmpKpi();
+  renderEmpDept();
+  renderEmpGuide();
+  await generateReminders();
+  updateBellDot();
+  empTab('emp-home');
+}
+
+function empTab(id){
+  document.querySelectorAll('#empNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.emp-tab-pane').forEach(p=>p.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+function renderEmpHome(){
+  const s = getSession();
+  const period = activePeriod();
+  const myWs = userWeights(s.id, period.id);
+  const totalKpi = myWs.length;
+  const subs = DB.submissions.filter(sub=>sub.user_id===s.id && sub.period_id===period.id);
+  const submitted = subs.length;
+  const pending = totalKpi - submitted;
+  // weighted progress
+  const totalWeight = myWs.reduce((a,b)=>a+b.weight,0);
+  const submittedWeight = subs.reduce((a,sub)=>{ const w = myWs.find(x=>x.objective_id===sub.objective_id); return a+(w?w.weight:0); },0);
+  const progress = totalWeight ? Math.round((submittedWeight/totalWeight)*100) : 0;
+  const avgSf = subs.length ? Math.round(subs.reduce((a,b)=>a+b.final_sf,0)/subs.length) : '-';
+
+  document.getElementById('empMyProgress').innerText = progress+'%';
+  document.getElementById('empSt1').innerText = totalKpi;
+  document.getElementById('empSt2').innerText = pending;
+  document.getElementById('empSt3').innerText = submitted;
+  document.getElementById('empSt4').innerText = avgSf;
+
+  // pending list (top 3)
+  const pendingList = myWs.filter(w => !subs.find(sub=>sub.objective_id===w.objective_id)).slice(0,4);
+  const html = pendingList.length ? `<table class="kpi-table"><thead><tr><th>Objective</th><th style="width:90px">Bobot</th><th style="width:120px">Aksi</th></tr></thead><tbody>${
+    pendingList.map(w=>`<tr><td class="obj-name">${w.obj.name}</td><td><span class="chip">${w.weight}%</span></td><td><button class="action-btn success" title="Isi" onclick="openFill(${w.objective_id})"><i class="bi bi-pencil-square"></i></button></td></tr>`).join('')
+  }</tbody></table>` : `<div class="empty-state"><i class="bi bi-emoji-sunglasses"></i><div><b>Mantap!</b> Semua KPI Anda sudah disubmit. 🎉</div></div>`;
+  document.getElementById('empPendingList').innerHTML = html;
+}
+
+function renderEmpKpi(){
+  const s = getSession();
+  const period = activePeriod();
+  const myWs = userWeights(s.id, period.id);
+  if(!myWs.length){
+    document.getElementById('empKpiBody').innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i><div>Belum ada KPI yang ditugaskan kepada Anda.</div></div></td></tr>';
+    return;
+  }
+  document.getElementById('empKpiBody').innerHTML = myWs.map((w,i)=>{
+    const sub = findSubmission(s.id, w.objective_id);
+    let status = '<span class="chip chip-warning"><i class="bi bi-hourglass"></i> Belum Diisi</span>';
+    let score = '-';
+    let editLeft = '-';
+    let actions = `<button class="action-btn success" title="Isi Penilaian" onclick="openFill(${w.objective_id})"><i class="bi bi-pencil-square"></i></button>`;
+    if(sub){
+      if(sub.edit_count>=3){ status = '<span class="chip chip-success"><i class="bi bi-lock-fill"></i> Terkunci</span>'; }
+      else { status = `<span class="chip chip-success"><i class="bi bi-check-circle"></i> Submitted</span>`; }
+      score = `<b class="text-grad">${sub.final_sf}</b>`;
+      editLeft = `<span class="chip ${sub.edit_count>=3?'chip-danger':'chip-info'}">${3-sub.edit_count}/3</span>`;
+      actions = `
+        <button class="action-btn" title="Lihat" onclick="viewReport(${sub.id})"><i class="bi bi-eye"></i></button>
+        <button class="action-btn gold" title="Cetak" onclick="printReport(${sub.id})"><i class="bi bi-printer"></i></button>
+        ${sub.edit_count<3?`<button class="action-btn success" title="Edit (sisa ${3-sub.edit_count})" onclick="openFill(${w.objective_id})"><i class="bi bi-pencil"></i></button>`:''}
+      `;
+    }
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="obj-name">${w.obj.name}<br><small class="text-muted">${w.obj.formula.substring(0,80)}${w.obj.formula.length>80?'...':''}</small></td>
+      <td><span class="chip-gold chip">${w.weight}%</span></td>
+      <td>${status}</td>
+      <td>${score}</td>
+      <td>${editLeft}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEmpDept(){
+  const period = activePeriod();
+  const objs = DB.objectives.filter(o=>o.period_id===period.id);
+  document.getElementById('empDeptList').innerHTML = objs.map((o,i)=>{
+    const krs = objKrs(o.id);
+    return `<div class="accord-item">
+      <div class="accord-head" onclick="this.parentElement.classList.toggle('open')">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700">${i+1}. ${o.name}</div>
+          <small style="color:var(--text-muted)">${krs.length} Key Result · Tipe: ${o.target_type}</small>
+        </div>
+        <i class="bi bi-plus-circle"></i>
+      </div>
+      <div class="accord-body">
+        <div class="mt-3 mb-2"><b>Formula:</b> <span class="text-muted">${o.formula}</span></div>
+        <table class="kpi-table"><thead><tr><th style="width:30px">#</th><th>Key Result</th><th style="width:90px">Target</th><th style="width:80px">Bobot</th></tr></thead>
+        <tbody>${krs.map((k,j)=>`<tr><td>${j+1}</td><td>${k.description}</td><td>${k.target} ${k.unit}</td><td><b>${k.relative_weight}%</b></td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderEmpGuide(){
+  const steps = [
+    {n:1,t:'Login ke Sistem',d:'Gunakan username dan password yang telah diberikan. Untuk Superadmin, gunakan akun yang terdaftar.'},
+    {n:2,t:'Periksa Notifikasi',d:'Cek ikon lonceng di pojok kanan atas untuk melihat KPI yang perlu segera diisi.'},
+    {n:3,t:'Buka Menu "KPI Saya"',d:'Daftar lengkap KPI Anda dengan informasi bobot dan status terisi/belum.'},
+    {n:4,t:'Klik Tombol "Isi"',d:'Tombol ikon pensil hijau pada kolom Aksi akan membuka form penilaian.'},
+    {n:5,t:'Isi Realisasi per KR',d:'Masukkan angka realisasi untuk setiap Key Result. Sistem otomatis menghitung skor proporsional.'},
+    {n:6,t:'Upload Bukti',d:'Lampirkan dokumen pendukung (gambar/PDF) dan beri keterangan bila perlu.'},
+    {n:7,t:'Tanda Tangan & Pernyataan',d:'Upload TTD digital dan centang pernyataan kebenaran data sebelum submit.'},
+    {n:8,t:'Edit Max 3×',d:'Sistem mengizinkan edit hingga 3 kali. Setelah itu, submission akan terkunci permanen.'},
+    {n:9,t:'Cetak per KPI',d:'Tombol ikon printer kuning di kolom Aksi mencetak satu form penilaian KPI.'},
+    {n:10,t:'Cetak Rekap Keseluruhan',d:'Tombol "Cetak Rekap" di pojok kanan atas mencetak semua KPI dalam 1 dokumen.'},
+  ];
+  document.getElementById('empGuideGrid').innerHTML = steps.map(s=>`
+    <div class="step-card"><div class="step-num">${s.n}</div><h6>${s.t}</h6><p>${s.d}</p></div>
+  `).join('');
+}
+
+
+/* ==================== KPI FILL MODAL ==================== */
+let currentFillObj = null;
+function openFill(objId){
+  const s = getSession();
+  const period = activePeriod();
+  const obj = DB.objectives.find(o=>o.id===objId);
+  if(!obj){ toast('Objective tidak ditemukan','danger'); return; }
+  currentFillObj = obj;
+  const w = DB.weights.find(x=>x.user_id===s.id && x.objective_id===objId);
+  const sub = findSubmission(s.id, objId);
+
+  if(sub && sub.edit_count >= 3){ toast('KPI ini sudah dikunci (batas 3 kali edit tercapai)','danger'); return; }
+
+  document.getElementById('fmTitle').innerText = (sub?'Edit Penilaian KPI':'Isi Penilaian KPI');
+  document.getElementById('fmEmp').value = s.name;
+  document.getElementById('fmNik').value = s.nik;
+  document.getElementById('fmBobot').value = (w?w.weight:0)+'%';
+  document.getElementById('fmFormula').innerHTML = `<b>${obj.name}</b><br><small>${obj.formula}</small>`;
+  document.getElementById('fmSubmitBtn').innerText = sub?'Update Penilaian':'Submit Penilaian';
+
+  if(sub){
+    const left = 3 - sub.edit_count;
+    document.getElementById('fmEditNote').innerHTML = `<i class="bi bi-exclamation-triangle"></i> Ini adalah <b>edit ke-${sub.edit_count+1}</b>. Sisa kesempatan edit setelah ini: <b>${left-1}</b>.`;
+    document.getElementById('fmEditNote').style.display='inline-flex';
+  } else {
+    document.getElementById('fmEditNote').style.display='none';
+  }
+
+  // render KR
+  const krs = objKrs(objId);
+  const details = sub ? DB.submission_details.filter(d=>d.submission_id===sub.id) : [];
+  document.getElementById('fmKrList').innerHTML = krs.map(k=>{
+    const det = details.find(d=>d.key_result_id===k.id);
+    return `<div class="kr-card">
+      <div class="kr-title">
+        <span>${k.description}</span>
+        <span class="chip">Bobot ${k.relative_weight}%</span>
+      </div>
+      <div class="kr-meta">
+        <span class="chip chip-info"><i class="bi bi-bullseye"></i> Target: ${k.target} ${k.unit}</span>
+      </div>
+      <div class="input-group">
+        <span class="input-group-text bg-white">Realisasi</span>
+        <input type="number" step="any" class="form-control fm-real" data-kr="${k.id}" data-target="${k.target}" data-weight="${k.relative_weight}" value="${det?det.realisasi:''}" placeholder="0">
+        <span class="input-group-text bg-white">${k.unit}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('fmEvidence').value = '';
+  document.getElementById('fmTtd').value = '';
+  document.getElementById('fmEvNote').value = sub ? (sub.evidence_note||'') : '';
+  document.getElementById('fmDeclare').checked = false;
+
+  document.getElementById('kpiFillModal').classList.add('show');
+}
+
+function closeKpiFill(){ document.getElementById('kpiFillModal').classList.remove('show'); }
+
+async function submitKpiFill(){
+  if(!document.getElementById('fmDeclare').checked){ toast('Centang pernyataan kebenaran data','warning'); return; }
+  const s = getSession();
+  const obj = currentFillObj;
+  if(!obj){ toast('Objective tidak ditemukan','danger'); return; }
+  const period = activePeriod();
+
+  const inputs = document.querySelectorAll('.fm-real');
+  let totalScore = 0, totalBobot = 0;
+  const details = [];
+  for(const inp of inputs){
+    if(inp.value===''){ toast('Lengkapi semua realisasi','warning'); return; }
+    const target = parseFloat(inp.dataset.target);
+    const weight = parseFloat(inp.dataset.weight);
+    const real = parseFloat(inp.value);
+    let part = 0;
+    if(target===0){ part = (real===0?weight:0); }
+    else { part = (real/target)*weight; }
+    totalScore += part; totalBobot += weight;
+    details.push({key_result_id:parseInt(inp.dataset.kr), realisasi:real, score_part:part});
+  }
+
+  let finalSf;
+  if(obj.score_type==='direct'){
+    const onlyVal = details[0]?.realisasi || 0;
+    const tgt = parseFloat(inputs[0].dataset.target);
+    if(obj.target_type==='score'){
+      finalSf = computeSf(onlyVal/tgt);
+    } else {
+      finalSf = computeSf(onlyVal/100);
+    }
+  } else {
+    finalSf = computeSf(totalScore/100);
+  }
+
+  const evName  = document.getElementById('fmEvidence').files[0]?.name || '';
+  const ttdName = document.getElementById('fmTtd').files[0]?.name || '';
+  const evNote  = document.getElementById('fmEvNote').value;
+  const btn = document.getElementById('fmSubmitButton');
+  if(btn) btn.disabled = true;
+
+  try{
+    let existing = findSubmission(s.id, obj.id);
+    if(existing){
+      if(existing.edit_count>=3){ toast('Edit limit tercapai','danger'); if(btn) btn.disabled=false; return; }
+      const changes = {
+        total_score: totalScore, final_sf: finalSf,
+        edit_count: existing.edit_count + 1,
+        last_edited_at: new Date().toISOString(),
+        evidence_note: evNote
+      };
+      if(evName)  changes.evidence_file  = evName;
+      if(ttdName) changes.signature_file = ttdName;
+      const updated = await dbUpdate('submissions', existing.id, changes);
+      // ganti detail: hapus lama, insert baru
+      const oldDet = DB.submission_details.filter(d=>d.submission_id===existing.id);
+      for(const d of oldDet){ await dbDelete('submission_details', d.id); }
+      for(const d of details){ await dbInsert('submission_details', {submission_id:existing.id, ...d}); }
+      await logActivity(s.id, 'EDIT_KPI', `Edit ke-${updated.edit_count} penilaian "${obj.name}". Skor Final: ${finalSf}`);
+      await pushNotif(s.id, 'success', `Penilaian "${obj.name.substring(0,40)}..." berhasil diupdate (edit ${updated.edit_count}/3).`);
+      toast('Penilaian berhasil diupdate','success');
+    } else {
+      const newSub = await dbInsert('submissions', {
+        user_id: s.id, objective_id: obj.id, period_id: period.id,
+        total_score: totalScore, final_sf: finalSf, status:'submitted',
+        edit_count: 0, declaration:true,
+        evidence_file: evName, evidence_note: evNote, signature_file: ttdName,
+        submitted_at: new Date().toISOString(), last_edited_at: new Date().toISOString()
+      });
+      for(const d of details){ await dbInsert('submission_details', {submission_id:newSub.id, ...d}); }
+      await logActivity(s.id, 'SUBMIT_KPI', `Submit penilaian "${obj.name}". Skor Final: ${finalSf}`);
+      await pushNotif(s.id, 'success', `Penilaian "${obj.name.substring(0,40)}..." berhasil disubmit. Skor Final: ${finalSf}.`);
+      toast('Penilaian berhasil disubmit','success');
+    }
+    closeKpiFill();
+    renderEmpHome(); renderEmpKpi(); updateBellDot();
+  }catch(e){
+    toast('Gagal menyimpan penilaian: '+e.message,'danger');
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+/* ==================== REPORT (print) ==================== */
+function viewReport(subId){
+  const sub = DB.submissions.find(s=>s.id===subId); if(!sub) return;
+  const obj = DB.objectives.find(o=>o.id===sub.objective_id);
+  const user = DB.users.find(u=>u.id===sub.user_id);
+  const w = DB.weights.find(x=>x.user_id===user.id && x.objective_id===obj.id);
+  const det = DB.submission_details.filter(d=>d.submission_id===sub.id);
+  const krs = objKrs(obj.id);
+  const period = DB.periods.find(p=>p.id===sub.period_id);
+  document.getElementById('reportContent').innerHTML = `
+    <div class="report-wrap">
+      <div class="report-head">
+        <div>
+          <div class="ttl">FORMULIR PENILAIAN KPI</div>
+          <div class="sub">General Affairs Department · PT MRT Jakarta (Perseroda) · ${period.name}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:.78rem;letter-spacing:1px;color:var(--text-muted);font-weight:700">GASS Terus!</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">No: KPI/${period.year}/${String(sub.id).padStart(4,'0')}</div>
+        </div>
+      </div>
+      <div class="d-flex align-items-start gap-3 flex-wrap">
+        <div class="report-info flex-grow-1">
+          <div><label>Nama</label><b>${user.name}</b></div>
+          <div><label>NIK</label><b>${user.nik}</b></div>
+          <div><label>Jabatan</label><b>${user.jabatan}</b></div>
+          <div><label>Bobot KPI</label><b>${w?w.weight:0}%</b></div>
+          <div><label>Objective</label><b style="color:var(--c-blue)">${obj.name}</b></div>
+          <div><label>Periode</label><b>${period.name}</b></div>
+        </div>
+        <div class="score-box">
+          <div class="label">SKOR FINAL</div>
+          <div class="val">${sub.final_sf}</div>
+        </div>
+      </div>
+
+      <h6 class="mt-4 mb-2 fw-7">Formula / Metode Penilaian</h6>
+      <div style="background:#F8FAFC;border:1px solid #E5E9F0;border-radius:8px;padding:10px 12px;font-size:.85rem">${obj.formula}</div>
+
+      <h6 class="mt-4 mb-2 fw-7">Rincian Perhitungan</h6>
+      <table class="report-table">
+        <thead><tr><th style="width:40px">No</th><th>Key Result</th><th>Target</th><th>Realisasi</th><th>Bobot KR</th><th>Skor</th></tr></thead>
+        <tbody>
+          ${krs.map((k,i)=>{const d=det.find(x=>x.key_result_id===k.id);return `<tr><td>${i+1}</td><td class="kr-cell">${k.description}</td><td>${k.target} ${k.unit}</td><td>${d?d.realisasi:'-'}</td><td>${k.relative_weight}%</td><td><b>${d?d.score_part.toFixed(2):'-'}</b></td></tr>`}).join('')}
+        </tbody>
+        <tfoot><tr><td colspan="4" style="text-align:right">TOTAL</td><td>${krs.reduce((a,b)=>a+b.relative_weight,0)}%</td><td>${sub.total_score.toFixed(2)}</td></tr></tfoot>
+      </table>
+
+      ${sub.evidence_file || sub.evidence_note ? `
+        <h6 class="mt-4 mb-2 fw-7">Bukti Pendukung</h6>
+        <div style="background:#F8FAFC;border:1px solid #E5E9F0;border-radius:8px;padding:12px 14px;font-size:.85rem">
+          ${sub.evidence_file?`<div><i class="bi bi-paperclip"></i> <b>File:</b> ${sub.evidence_file}</div>`:''}
+          ${sub.evidence_note?`<div class="mt-1">${sub.evidence_note}</div>`:''}
+        </div>
+      `:''}
+
+      <div class="report-info mt-4" style="grid-template-columns:1fr;gap:0">
+        <div style="font-size:.78rem;color:var(--text-muted)">Status: <b style="color:#066B3A">SUBMITTED</b> · Disubmit: <b>${fmtDate(sub.submitted_at)}</b> · Edit: <b>${sub.edit_count}/3</b>${sub.edit_count?` · Terakhir diedit: <b>${fmtDate(sub.last_edited_at)}</b>`:''}</div>
+      </div>
+
+      <div class="sig-row">
+        <div class="sig-box">
+          <div>Jakarta, ${fmtDateShort(sub.last_edited_at||sub.submitted_at)}</div>
+          <div class="mt-1 mb-1">Dibuat oleh,</div>
+          ${sub.signature_file?`<div style="height:70px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-muted);border:1px dashed #CBD5E1;border-radius:6px;background:#F8FAFC">📎 ${sub.signature_file}</div>`:`<div style="height:70px"></div>`}
+          <div class="name">${user.name}</div>
+          <div style="font-size:.78rem;color:var(--text-muted)">${user.jabatan}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  route('report');
+}
+
+function printReport(subId){ viewReport(subId); setTimeout(()=>window.print(),300); }
+
+function backToEmp(){
+  const s = getSession();
+  if(s.role==='employee') route('employee'); else route('admin');
+}
+
+function printAllMyKpi(){
+  const s = getSession();
+  const period = activePeriod();
+  const myWs = userWeights(s.id, period.id);
+  const subs = DB.submissions.filter(sub=>sub.user_id===s.id && sub.period_id===period.id);
+  if(!subs.length){ toast('Belum ada penilaian yang disubmit untuk dicetak','warning'); return; }
+
+  const avgSf = Math.round(subs.reduce((a,b)=>a+b.final_sf,0)/subs.length);
+  const weightedSf = myWs.reduce((a,w)=>{ const sub=subs.find(s=>s.objective_id===w.objective_id); return a + (sub?(sub.final_sf*w.weight/100):0); },0);
+  const totalSubmittedWeight = myWs.reduce((a,w)=>{ const sub=subs.find(s=>s.objective_id===w.objective_id); return a + (sub?w.weight:0); },0);
+
+  document.getElementById('reportContent').innerHTML = `
+    <div class="report-wrap">
+      <div class="report-head">
+        <div>
+          <div class="ttl">REKAP PENILAIAN KPI TAHUNAN</div>
+          <div class="sub">General Affairs Department · PT MRT Jakarta (Perseroda) · ${period.name}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:.78rem;letter-spacing:1px;color:var(--text-muted);font-weight:700">GASS Terus!</div>
+          <div style="font-size:.75rem;color:var(--text-muted)">No: REKAP/${period.year}/${String(s.id).padStart(4,'0')}</div>
+        </div>
+      </div>
+      <div class="d-flex align-items-start gap-3 flex-wrap">
+        <div class="report-info flex-grow-1">
+          <div><label>Nama</label><b>${s.name}</b></div>
+          <div><label>NIK</label><b>${s.nik}</b></div>
+          <div><label>Jabatan</label><b>${s.jabatan}</b></div>
+          <div><label>Periode</label><b>${period.name}</b></div>
+        </div>
+        <div class="score-box">
+          <div class="label">SKOR FINAL (BOBOT)</div>
+          <div class="val">${weightedSf.toFixed(1)}</div>
+        </div>
+      </div>
+
+      <h6 class="mt-4 mb-2 fw-7">Daftar Penilaian KPI</h6>
+      <table class="report-table">
+        <thead><tr><th style="width:40px">No</th><th>Objective</th><th>Bobot</th><th>Total Skor</th><th>Skor Final</th><th>Status</th></tr></thead>
+        <tbody>
+          ${myWs.map((w,i)=>{
+            const sub=subs.find(s=>s.objective_id===w.objective_id);
+            return `<tr>
+              <td>${i+1}</td>
+              <td class="kr-cell">${w.obj.name}</td>
+              <td>${w.weight}%</td>
+              <td>${sub?sub.total_score.toFixed(2):'-'}</td>
+              <td><b>${sub?sub.final_sf:'-'}</b></td>
+              <td>${sub?'Submitted':'Belum'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2" style="text-align:right">TOTAL BOBOT</td><td>${myWs.reduce((a,b)=>a+b.weight,0)}%</td><td colspan="2" style="text-align:right">RATA-RATA SF</td><td><b>${avgSf}</b></td></tr>
+        </tfoot>
+      </table>
+
+      <div class="report-info mt-4" style="grid-template-columns:1fr;gap:0">
+        <div style="font-size:.78rem;color:var(--text-muted)">Progres terisi: <b>${subs.length} dari ${myWs.length} KPI</b> (${Math.round(subs.length/myWs.length*100)}%) · Bobot tersubmit: <b>${totalSubmittedWeight}%</b></div>
+      </div>
+
+      <div class="sig-row">
+        <div class="sig-box">
+          <div>Jakarta, ${fmtDateShort(new Date())}</div>
+          <div class="mt-1 mb-1">Dibuat oleh,</div>
+          <div style="height:70px"></div>
+          <div class="name">${s.name}</div>
+          <div style="font-size:.78rem;color:var(--text-muted)">${s.jabatan}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  route('report');
+  setTimeout(()=>window.print(),300);
+}
+
+/* ===== BELL & PROFILE DROPDOWN ===== */
+function toggleBell(prefix){
+  const el = document.getElementById(prefix+'BellPanel');
+  if(!el) return;
+  document.querySelectorAll('.bell-panel.show, .profile-panel.show').forEach(x=>{ if(x!==el) x.classList.remove('show'); });
+  el.classList.toggle('show');
+  if(el.classList.contains('show')){ renderBellPanel(prefix); markAllRead(); }
+}
+function toggleProfile(prefix){
+  const el = document.getElementById(prefix+'ProfilePanel');
+  if(!el) return;
+  document.querySelectorAll('.bell-panel.show, .profile-panel.show').forEach(x=>{ if(x!==el) x.classList.remove('show'); });
+  el.classList.toggle('show');
+}
+function renderBellPanel(prefix){
+  const s = getSession(); if(!s) return;
+  const myNotif = DB.notifications.filter(n=>n.user_id===s.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,20);
+  const el = document.getElementById(prefix+'BellList');
+  if(!el) return;
+  if(myNotif.length===0){
+    el.innerHTML = '<div class="text-center p-3 text-muted" style="font-size:.85rem">Belum ada notifikasi</div>';
+    return;
+  }
+  el.innerHTML = myNotif.map(n=>`
+    <div class="bell-item ${n.is_read?'':'unread'}">
+      <div class="ic" style="${n.type==='warn'?'background:#FEF3C7;color:#F59E0B':n.type==='success'?'background:#DCFCE7;color:#16A34A':''}"><i class="bi ${n.type==='warn'?'bi-exclamation-triangle-fill':n.type==='success'?'bi-check-circle-fill':'bi-info-circle-fill'}"></i></div>
+      <div style="flex:1">
+        <div>${n.message}</div>
+        <div style="font-size:.74rem;color:var(--text-muted);margin-top:2px">${fmtDate(n.created_at)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+async function markAllRead(){
+  const s = getSession(); if(!s) return;
+  const unread = DB.notifications.filter(n=>n.user_id===s.id && !n.is_read);
+  if(unread.length===0) return;
+  try{
+    const { error } = await sb.from('notifications')
+      .update({is_read:true}).eq('user_id', s.id).eq('is_read', false);
+    if(error) throw new Error(error.message);
+    DB.notifications.forEach(n=>{ if(n.user_id===s.id) n.is_read=true; });
+  }catch(e){ console.warn('markAllRead gagal:', e.message); }
+  updateBellDot();
+}
+function updateBellDot(){
+  const s = getSession(); if(!s) return;
+  const unread = DB.notifications.filter(n=>n.user_id===s.id && !n.is_read).length;
+  document.querySelectorAll('.bell-dot').forEach(d=>{
+    d.style.display = unread>0 ? 'block' : 'none';
+  });
+}
+async function generateReminders(){
+  const s = getSession(); if(!s) return;
+  const period = activePeriod();
+  if(!period) return;
+  const myWs = userWeights(s.id, period.id);
+  for(const w of myWs){
+    const sub = findSubmission(s.id, w.objective_id);
+    if(sub) continue;
+    const exists = DB.notifications.find(n=>n.user_id===s.id && n.type==='warn' && n.message.includes('"'+w.obj.name+'"'));
+    if(exists) continue;
+    try{
+      await dbInsert('notifications', {
+        user_id:s.id, type:'warn', is_read:false,
+        message:`Reminder: KPI "${w.obj.name}" (${period.name}) belum diisi.`
+      });
+    }catch(e){ console.warn('generateReminders gagal:', e.message); }
+  }
+}
+
+/* ===== ADMIN MODULE ===== */
+async function initAdmin(){
+  const s = getSession();
+  if(!s || (s.role!=='admin' && s.role!=='superadmin')){ goLogin(); return; }
+  document.getElementById('adProfileName').textContent = s.name.split(' ')[0];
+  document.getElementById('adAvatar').textContent = initials(s.name);
+  const piName = document.getElementById('adPiName'); if(piName) piName.textContent = s.name;
+  const piRole = document.getElementById('adPiRole'); if(piRole) piRole.textContent = (s.role==='superadmin'?'Superadmin · ':'Admin · ')+s.jabatan;
+  const isSuper = s.role==='superadmin';
+  ['snUser','snPopup','snLog'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display = isSuper?'flex':'none'; });
+  const sl = document.getElementById('snlSuper'); if(sl) sl.style.display = isSuper?'block':'none';
+  await generateReminders();
+  updateBellDot();
+  adMod('ad-dash');
+  maybeShowPopup('cpanel');
+}
+function adMod(id){
+  document.querySelectorAll('.side-nav button[data-mod]').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.side-nav button[data-mod="${id}"]`)?.classList.add('active');
+  document.querySelectorAll('.ad-mod').forEach(p=>{ p.style.display='none'; });
+  const target = document.getElementById(id);
+  if(target) target.style.display='block';
+  /* title */
+  const titles = {
+    'ad-dash':['Dashboard','Statistik & ringkasan KPI'],
+    'ad-kpi':['Manajemen KPI','Kelola objective, key result, & pembobotan'],
+    'ad-period':['Periode KPI','Kelola periode penilaian tahunan'],
+    'ad-submit':['Penilaian KPI','Daftar penilaian yang telah disubmit'],
+    'ad-user':['Manajemen User','Kelola akun pengguna sistem'],
+    'ad-popup':['Popup Notifikasi','Atur pengumuman yang ditampilkan'],
+    'ad-log':['Log Aktivitas','Riwayat aktivitas pengguna sistem']
+  };
+  if(titles[id]){
+    const t = document.getElementById('adTitle');
+    const st = document.getElementById('adSubtitle');
+    if(t){ t.innerHTML = titles[id][0]+'<small id="adSubtitle">'+titles[id][1]+'</small>'; }
+  }
+  if(id==='ad-dash') renderAdDash();
+  else if(id==='ad-kpi') renderAdKpi();
+  else if(id==='ad-period') renderAdPeriod();
+  else if(id==='ad-submit') renderAdSubmit();
+  else if(id==='ad-user') renderAdUser();
+  else if(id==='ad-popup') renderAdPopup();
+  else if(id==='ad-log') renderAdLog();
+}
+
+function renderAdDash(){
+  const period = activePeriod();
+  if(!period){ return; }
+  const employees = DB.users.filter(u=>u.status==='active');
+  let totalRequired = 0, totalSubmitted = 0;
+  const perEmp = employees.map(e=>{
+    const ws = userWeights(e.id, period.id);
+    const req = ws.length;
+    const sub = ws.filter(w=>findSubmission(e.id,w.objective_id)).length;
+    totalRequired += req; totalSubmitted += sub;
+    const submittedW = ws.reduce((acc,w)=>{ const s = findSubmission(e.id,w.objective_id); return acc + (s?w.weight:0); },0);
+    const weightedSf = ws.reduce((acc,w)=>{ const s = findSubmission(e.id,w.objective_id); return acc + (s?(s.final_sf*w.weight/100):0); },0);
+    return {e, req, sub, submittedW, weightedSf, pct: req>0?Math.round(sub/req*100):0};
+  });
+  const overallPct = totalRequired>0 ? Math.round(totalSubmitted/totalRequired*100) : 0;
+  document.getElementById('adS1').textContent = employees.length;
+  document.getElementById('adS2').textContent = DB.objectives.filter(o=>o.period_id===period.id).length;
+  document.getElementById('adS3').textContent = DB.submissions.filter(s=>s.period_id===period.id).length;
+  document.getElementById('adS4').textContent = overallPct+'%';
+
+  document.getElementById('adProgPerEmp').innerHTML = perEmp.filter(x=>x.req>0).sort((a,b)=>b.pct-a.pct).map(x=>`
+    <div class="prog-row">
+      <div class="dot" style="width:34px;height:34px;border-radius:50%;background:var(--grad-soft);color:var(--c-blue);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0">${initials(x.e.name)}</div>
+      <div class="nm">
+        <b>${x.e.name}</b>
+        <small>${x.e.jabatan} · ${x.sub}/${x.req} KPI · Bobot ${x.submittedW}%</small>
+      </div>
+      <div class="bar"><div style="width:${x.pct}%"></div></div>
+      <div class="pct">${x.pct}%</div>
+    </div>
+  `).join('') || '<div class="text-muted text-center p-4" style="font-size:.85rem">Belum ada data pembobotan</div>';
+
+  const topScores = perEmp.filter(x=>x.sub>0).sort((a,b)=>b.weightedSf-a.weightedSf).slice(0,5);
+  document.getElementById('adTopScore').innerHTML = topScores.map((x,i)=>`
+    <div class="prog-row">
+      <div class="dot" style="width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.86rem;flex-shrink:0;background:${i===0?'var(--c-gold)':i===1?'#94a3b8':i===2?'#cd7f32':'var(--c-blue)'}">${i+1}</div>
+      <div class="nm">
+        <b>${x.e.name}</b>
+        <small>${x.e.jabatan}</small>
+      </div>
+      <div style="font-weight:800;color:var(--c-blue);font-size:1.15rem">${x.weightedSf.toFixed(1)}</div>
+    </div>
+  `).join('') || '<div class="text-muted text-center p-4" style="font-size:.85rem">Belum ada penilaian</div>';
+
+  const recent = [...DB.logs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,8);
+  document.getElementById('adRecentLog').innerHTML = recent.map(l=>{
+    const u = DB.users.find(x=>x.id===l.user_id);
+    return `<div class="log-row">
+      <div class="dot">${initials(u?u.name:'?')}</div>
+      <div style="flex:1">
+        <div class="nm">${u?u.name:'Sistem'}</div>
+        <div class="act">${l.description}</div>
+        <div class="meta">${fmtDate(l.created_at)}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="text-muted text-center p-4" style="font-size:.85rem">Belum ada aktivitas</div>';
+}
+
+function renderAdKpi(){
+  const sel = document.getElementById('adKpiPeriodFilter');
+  if(!sel.dataset.init){
+    sel.innerHTML = DB.periods.map(p=>`<option value="${p.id}" ${p.status==='active'?'selected':''}>${p.name} ${p.status==='active'?'(aktif)':''}</option>`).join('');
+    sel.dataset.init='1';
+  }
+  const wsel = document.getElementById('adWeightPeriod');
+  if(!wsel.dataset.init){
+    wsel.innerHTML = DB.periods.map(p=>`<option value="${p.id}" ${p.status==='active'?'selected':''}>${p.name}</option>`).join('');
+    wsel.dataset.init='1';
+  }
+  const pid = parseInt(sel.value);
+  const objs = DB.objectives.filter(o=>o.period_id===pid);
+  document.getElementById('adKpiBody').innerHTML = objs.map((o,i)=>{
+    const krs = objKrs(o.id);
+    const tp = o.target_type==='monthly'?'Bulanan':o.target_type==='score'?'Skor Langsung':'Tahunan';
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b>${o.name}</b><br><span class="text-muted" style="font-size:.72rem">${o.formula||''}</span></td>
+      <td><span class="chip ${o.score_type==='direct'?'chip-success':'chip-info'}">${tp}</span></td>
+      <td>${krs.length} KR</td>
+      <td>${DB.periods.find(p=>p.id===o.period_id)?.year||''}</td>
+      <td>
+        <button class="btn-mini" onclick="openKpiModal(${o.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+        <button class="btn-mini danger" onclick="deleteKpi(${o.id})" title="Hapus"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="text-center text-muted p-3">Belum ada KPI di periode ini. Klik "Tambah KPI" untuk menambah.</td></tr>';
+  renderAdWeight();
+}
+function renderAdWeight(){
+  const pid = parseInt(document.getElementById('adWeightPeriod').value);
+  const objs = DB.objectives.filter(o=>o.period_id===pid);
+  const emps = DB.users.filter(u=>u.status==='active');
+  if(objs.length===0){ document.getElementById('adWeightWrap').innerHTML='<div class="text-muted p-3" style="font-size:.85rem">Tambahkan KPI dulu untuk membobotkan.</div>'; return; }
+  document.getElementById('adWeightWrap').innerHTML = `
+    <table class="kpi-table weight-table">
+      <thead>
+        <tr>
+          <th style="width:200px;position:sticky;left:0;background:#f8fafc;z-index:2">Karyawan</th>
+          ${objs.map(o=>`<th title="${o.name}" style="font-size:.7rem">${o.name.length>22?o.name.slice(0,22)+'…':o.name}</th>`).join('')}
+          <th style="width:80px">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${emps.map(e=>{
+          let total=0;
+          const cells = objs.map(o=>{
+            const w = DB.weights.find(x=>x.user_id===e.id && x.objective_id===o.id);
+            const v = w?w.weight:0; total+=v;
+            return `<td><input type="number" class="w-inp" data-uid="${e.id}" data-oid="${o.id}" min="0" max="100" value="${v}"></td>`;
+          }).join('');
+          return `<tr><td style="position:sticky;left:0;background:#fff;font-weight:600;font-size:.78rem">${e.name}<div style="font-size:.7rem;color:var(--text-muted);font-weight:400">${e.jabatan}</div></td>${cells}<td class="total-cell" data-uid="${e.id}"><b style="color:${total===100?'var(--c-green)':'#ef4444'}">${total}%</b></td></tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn-grad" id="saveWeightBtn" onclick="saveWeights()"><i class="bi bi-check2 me-1"></i>Simpan Pembobotan</button>
+      <div class="text-muted" style="font-size:.78rem;align-self:center">Total bobot per karyawan harus 100% (atau 0 untuk tidak menilai).</div>
+    </div>
+  `;
+  document.querySelectorAll('.w-inp').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const uid = parseInt(inp.dataset.uid);
+      let total=0;
+      document.querySelectorAll(`.w-inp[data-uid="${uid}"]`).forEach(x=>{ total+=parseInt(x.value||0); });
+      const tc = document.querySelector(`.total-cell[data-uid="${uid}"]`);
+      tc.innerHTML = `<b style="color:${total===100?'var(--c-green)':'#ef4444'}">${total}%</b>`;
+    });
+  });
+}
+async function saveWeights(){
+  const inputs = document.querySelectorAll('.w-inp');
+  const totals = {};
+  inputs.forEach(inp=>{ const uid = parseInt(inp.dataset.uid); totals[uid] = (totals[uid]||0) + parseInt(inp.value||0); });
+  const invalid = Object.entries(totals).filter(([_,v])=>v!==0 && v!==100);
+  if(invalid.length>0){ toast('Total bobot tiap karyawan harus 100% (atau 0)','error'); return; }
+  const btn = document.getElementById('saveWeightBtn');
+  if(btn) btn.disabled = true;
+  try{
+    for(const inp of inputs){
+      const uid = parseInt(inp.dataset.uid);
+      const oid = parseInt(inp.dataset.oid);
+      const w   = parseInt(inp.value||0);
+      const row = DB.weights.find(x=>x.user_id===uid && x.objective_id===oid);
+      if(row){
+        if(row.weight !== w) await dbUpdate('weights', row.id, {weight:w});
+      } else {
+        await dbInsert('weights', {user_id:uid, objective_id:oid, weight:w});
+      }
+    }
+    const s=getSession();
+    await logActivity(s.id,'WEIGHT_UPDATE','memperbarui pembobotan KPI karyawan');
+    toast('Pembobotan berhasil disimpan','success');
+  }catch(e){
+    toast('Gagal menyimpan pembobotan: '+e.message,'danger');
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+function renderAdPeriod(){
+  document.getElementById('adPeriodBody').innerHTML = DB.periods.map((p,i)=>{
+    const cnt = DB.objectives.filter(o=>o.period_id===p.id).length;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b>${p.year}</b></td>
+      <td>${p.name}</td>
+      <td><span class="chip ${p.status==='active'?'chip-success':p.status==='closed'?'chip-danger':'chip-info'}">${p.status==='active'?'Aktif':p.status==='closed'?'Ditutup':'Draft'}</span></td>
+      <td>${cnt}</td>
+      <td>
+        <button class="btn-mini" onclick="openPeriodModal(${p.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn-mini danger" onclick="deletePeriod(${p.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="text-center text-muted p-3">Belum ada periode</td></tr>';
+}
+
+function renderAdSubmit(){
+  const sp = document.getElementById('adSubPeriod');
+  const se = document.getElementById('adSubEmp');
+  if(!sp.dataset.init){
+    sp.innerHTML = '<option value="0">Semua Periode</option>'+DB.periods.map(p=>`<option value="${p.id}" ${p.status==='active'?'selected':''}>${p.name}</option>`).join('');
+    se.innerHTML = '<option value="0">Semua Karyawan</option>'+DB.users.filter(u=>u.status==='active').map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+    sp.dataset.init='1';
+  }
+  const pid = parseInt(sp.value); const eid = parseInt(se.value);
+  let list = DB.submissions.slice();
+  if(pid) list = list.filter(x=>x.period_id===pid);
+  if(eid) list = list.filter(x=>x.user_id===eid);
+  list.sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
+  document.getElementById('adSubBody').innerHTML = list.map(s=>{
+    const u = DB.users.find(x=>x.id===s.user_id);
+    const o = DB.objectives.find(x=>x.id===s.objective_id);
+    const w = DB.weights.find(x=>x.user_id===s.user_id && x.objective_id===s.objective_id);
+    return `<tr>
+      <td><b>${u?u.name:'?'}</b><div style="font-size:.7rem;color:var(--text-muted)">${u?u.jabatan:''}</div></td>
+      <td>${o?o.name:'?'}</td>
+      <td>${w?w.weight+'%':'-'}</td>
+      <td>${s.total_score.toFixed(2)}</td>
+      <td><b style="color:var(--c-blue)">${s.final_sf}</b></td>
+      <td>${s.edit_count}/3</td>
+      <td>
+        <button class="btn-mini" onclick="viewReport(${s.id})" title="Lihat"><i class="bi bi-eye"></i></button>
+        <button class="btn-mini" onclick="printReport(${s.id})" title="Cetak"><i class="bi bi-printer"></i></button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="text-center text-muted p-3">Belum ada submission</td></tr>';
+}
+
+function renderAdUser(){
+  document.getElementById('adUserBody').innerHTML = DB.users.map((u,i)=>`<tr>
+    <td>${i+1}</td>
+    <td><code>${u.username}</code></td>
+    <td><b>${u.name}</b></td>
+    <td>${u.nik}</td>
+    <td style="font-size:.78rem">${u.jabatan}</td>
+    <td><span class="chip ${u.role==='superadmin'?'chip-gold':u.role==='admin'?'chip-info':'chip-success'}">${u.role}</span></td>
+    <td>
+      <button class="btn-mini" onclick="openUserModal(${u.id})"><i class="bi bi-pencil"></i></button>
+      ${u.username==='arizki'?'<button class="btn-mini" disabled style="opacity:.3" title="Tidak bisa dihapus"><i class="bi bi-lock"></i></button>':`<button class="btn-mini danger" onclick="deleteUser(${u.id})"><i class="bi bi-trash"></i></button>`}
+    </td>
+  </tr>`).join('');
+}
+
+function renderAdPopup(){
+  const p = DB.popup;
+  document.getElementById('popTitle').value = p.title;
+  document.getElementById('popContent').value = p.content;
+  document.getElementById('popActive').value = p.active?'1':'0';
+  document.getElementById('popTarget').value = p.target;
+  document.getElementById('popType').value = p.type;
+}
+
+function renderAdLog(){
+  const logs = [...DB.logs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  document.getElementById('adLogList').innerHTML = logs.map(l=>{
+    const u = DB.users.find(x=>x.id===l.user_id);
+    return `<div class="log-row">
+      <div class="dot">${initials(u?u.name:'?')}</div>
+      <div style="flex:1">
+        <div class="nm">${u?u.name:'Sistem'}</div>
+        <div class="act">${l.description}</div>
+        <div class="meta"><span class="chip chip-info">${l.action}</span> · ${fmtDate(l.created_at)}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="text-muted text-center p-4">Belum ada aktivitas</div>';
+}
+async function clearLogs(){
+  if(!confirm('Bersihkan semua log aktivitas?')) return;
+  try{
+    const { error } = await sb.from('activity_logs').delete().gte('id', 0);
+    if(error) throw new Error(error.message);
+    DB.logs = [];
+    const s=getSession();
+    if(s) await logActivity(s.id,'LOG_CLEAR','membersihkan log aktivitas');
+    renderAdLog();
+    toast('Log dibersihkan','success');
+  }catch(e){ toast('Gagal membersihkan log: '+e.message,'danger'); }
+}
+
+/* ===== CRUD KPI MODAL ===== */
+let _editKpiId = null;
+function openKpiModal(id){
+  _editKpiId = id || null;
+  const period = activePeriod();
+  document.getElementById('akmPeriod').innerHTML = DB.periods.map(p=>{
+    const sel = id ? (DB.objectives.find(o=>o.id===id).period_id===p.id) : (period && p.id===period.id);
+    return `<option value="${p.id}" ${sel?'selected':''}>${p.name}</option>`;
+  }).join('');
+  if(id){
+    const o = DB.objectives.find(x=>x.id===id);
+    document.getElementById('adKMtitle').textContent='Edit Objective KPI';
+    document.getElementById('akmName').value=o.name;
+    document.getElementById('akmFormula').value=o.formula||'';
+    document.getElementById('akmTargetType').value=o.target_type;
+    document.getElementById('akmScoreType').value=o.score_type;
+    const krs = objKrs(id);
+    document.getElementById('akmKrList').innerHTML='';
+    krs.forEach(k=>akmAddKr(k));
+    if(krs.length===0) akmAddKr();
+  } else {
+    document.getElementById('adKMtitle').textContent='Tambah Objective KPI';
+    document.getElementById('akmName').value='';
+    document.getElementById('akmFormula').value='';
+    document.getElementById('akmTargetType').value='annual';
+    document.getElementById('akmScoreType').value='weighted';
+    document.getElementById('akmKrList').innerHTML='';
+    akmAddKr();
+  }
+  recalcKrTotal();
+  document.getElementById('kpiAdminModal').classList.add('show');
+}
+function akmAddKr(kr){
+  const wrap = document.getElementById('akmKrList');
+  const idx = wrap.querySelectorAll('.kr-row').length;
+  const div = document.createElement('div');
+  div.className='kr-row';
+  div.style.cssText='display:grid;grid-template-columns:1fr 100px 90px 90px 38px;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:#F8FAFC;border-radius:10px';
+  div.innerHTML = `
+    <div><label class="form-label" style="font-size:.72rem">Deskripsi KR ${idx+1}</label><input class="form-control form-control-sm akm-kr-desc" value="${kr?kr.description.replace(/"/g,'&quot;'):''}"></div>
+    <div><label class="form-label" style="font-size:.72rem">Target</label><input class="form-control form-control-sm akm-kr-target" type="number" step="0.01" value="${kr?kr.target:''}"></div>
+    <div><label class="form-label" style="font-size:.72rem">Unit</label><input class="form-control form-control-sm akm-kr-unit" value="${kr?kr.unit:''}"></div>
+    <div><label class="form-label" style="font-size:.72rem">Bobot %</label><input class="form-control form-control-sm akm-kr-w" type="number" min="0" max="100" value="${kr?kr.relative_weight:''}"></div>
+    <button type="button" class="btn-mini danger" onclick="this.closest('.kr-row').remove();recalcKrTotal()" style="height:31px"><i class="bi bi-x-lg"></i></button>
+  `;
+  wrap.appendChild(div);
+  div.querySelector('.akm-kr-w').addEventListener('input',recalcKrTotal);
+}
+function recalcKrTotal(){
+  let total = 0;
+  document.querySelectorAll('.akm-kr-w').forEach(i=>{ total += parseFloat(i.value||0); });
+  const el = document.getElementById('akmTotalKr');
+  if(el){ el.textContent = total; el.style.color = Math.abs(total-100)<0.01?'var(--c-green)':'#ef4444'; }
+}
+async function saveAdKpi(){
+  const period_id = parseInt(document.getElementById('akmPeriod').value);
+  const name = document.getElementById('akmName').value.trim();
+  const formula = document.getElementById('akmFormula').value.trim();
+  const target_type = document.getElementById('akmTargetType').value;
+  const score_type = document.getElementById('akmScoreType').value;
+  if(!name){ toast('Nama objective wajib diisi','error'); return; }
+  const krRows = document.querySelectorAll('#akmKrList .kr-row');
+  const krs = [];
+  let totalW = 0;
+  krRows.forEach(r=>{
+    const desc = r.querySelector('.akm-kr-desc').value.trim();
+    const target = parseFloat(r.querySelector('.akm-kr-target').value||0);
+    const unit = r.querySelector('.akm-kr-unit').value.trim();
+    const w = parseFloat(r.querySelector('.akm-kr-w').value||0);
+    if(desc){ krs.push({description:desc,target,unit,relative_weight:w}); totalW+=w; }
+  });
+  if(krs.length===0){ toast('Minimal 1 key result','error'); return; }
+  if(score_type==='weighted' && Math.abs(totalW-100)>0.01){ toast('Total bobot KR harus 100% (sekarang '+totalW+'%)','error'); return; }
+  const s = getSession();
+  try{
+    if(_editKpiId){
+      await dbUpdate('objectives', _editKpiId, {period_id, name, formula, target_type, score_type});
+      // ganti key result: hapus lama, insert baru
+      const oldKrs = DB.key_results.filter(k=>k.objective_id===_editKpiId);
+      for(const k of oldKrs){ await dbDelete('key_results', k.id); }
+      for(const k of krs){ await dbInsert('key_results', {objective_id:_editKpiId, ...k}); }
+      await logActivity(s.id,'KPI_UPDATE','memperbarui KPI "'+name+'"');
+      toast('KPI berhasil diperbarui','success');
+    } else {
+      const obj = await dbInsert('objectives', {period_id, name, formula, target_type, score_type});
+      for(const k of krs){ await dbInsert('key_results', {objective_id:obj.id, ...k}); }
+      await logActivity(s.id,'KPI_CREATE','membuat KPI baru "'+name+'"');
+      toast('KPI berhasil ditambahkan','success');
+    }
+    document.getElementById('kpiAdminModal').classList.remove('show');
+    renderAdKpi();
+  }catch(e){ toast('Gagal menyimpan KPI: '+e.message,'danger'); }
+}
+async function deleteKpi(id){
+  const o = DB.objectives.find(x=>x.id===id);
+  if(!confirm('Hapus KPI "'+o.name+'"? Semua key result, pembobotan, dan submission terkait akan ikut terhapus.')) return;
+  try{
+    // FK ON DELETE CASCADE menghapus key_results, weights, submissions terkait
+    await dbDelete('objectives', id);
+    // selaraskan cache lokal untuk baris anak yang ikut terhapus di server
+    DB.key_results = DB.key_results.filter(k=>k.objective_id!==id);
+    DB.weights     = DB.weights.filter(w=>w.objective_id!==id);
+    const subIds   = DB.submissions.filter(s=>s.objective_id===id).map(s=>s.id);
+    DB.submissions = DB.submissions.filter(s=>s.objective_id!==id);
+    DB.submission_details = DB.submission_details.filter(d=>!subIds.includes(d.submission_id));
+    const s=getSession(); await logActivity(s.id,'KPI_DELETE','menghapus KPI "'+o.name+'"');
+    renderAdKpi();
+    toast('KPI dihapus','success');
+  }catch(e){ toast('Gagal menghapus KPI: '+e.message,'danger'); }
+}
+
+/* ===== CRUD PERIOD MODAL ===== */
+let _editPeriodId = null;
+function openPeriodModal(id){
+  _editPeriodId = id || null;
+  if(id){
+    const p = DB.periods.find(x=>x.id===id);
+    document.getElementById('pmTitle').textContent='Edit Periode KPI';
+    document.getElementById('pmY').value=p.year;
+    document.getElementById('pmN').value=p.name;
+    document.getElementById('pmS').value=p.status;
+  } else {
+    document.getElementById('pmTitle').textContent='Tambah Periode KPI';
+    document.getElementById('pmY').value=new Date().getFullYear()+1;
+    document.getElementById('pmN').value='';
+    document.getElementById('pmS').value='draft';
+  }
+  document.getElementById('periodModal').classList.add('show');
+}
+async function savePeriod(){
+  const year = parseInt(document.getElementById('pmY').value);
+  const name = document.getElementById('pmN').value.trim();
+  const status = document.getElementById('pmS').value;
+  if(!year||!name){ toast('Tahun & Nama wajib diisi','error'); return; }
+  const s = getSession();
+  try{
+    // jika periode ini aktif, nonaktifkan periode aktif lain dulu
+    if(status==='active'){
+      for(const p of DB.periods){
+        if(p.status==='active' && p.id!=_editPeriodId){
+          await dbUpdate('periods', p.id, {status:'closed'});
+        }
+      }
+    }
+    if(_editPeriodId){
+      await dbUpdate('periods', _editPeriodId, {year, name, status});
+      await logActivity(s.id,'PERIOD_UPDATE','memperbarui periode "'+name+'"');
+    } else {
+      await dbInsert('periods', {year, name, status});
+      await logActivity(s.id,'PERIOD_CREATE','membuat periode baru "'+name+'"');
+    }
+    document.getElementById('periodModal').classList.remove('show');
+    renderAdPeriod();
+    ['adKpiPeriodFilter','adWeightPeriod','adSubPeriod'].forEach(id=>{ const e=document.getElementById(id); if(e) delete e.dataset.init; });
+    toast('Periode disimpan','success');
+  }catch(e){ toast('Gagal menyimpan periode: '+e.message,'danger'); }
+}
+async function deletePeriod(id){
+  const p = DB.periods.find(x=>x.id===id);
+  const cnt = DB.objectives.filter(o=>o.period_id===id).length;
+  if(cnt>0){ if(!confirm('Periode ini punya '+cnt+' KPI. Hapus periode beserta semua KPI dan submission terkait?')) return; }
+  else { if(!confirm('Hapus periode "'+p.name+'"?')) return; }
+  try{
+    const objIds = DB.objectives.filter(o=>o.period_id===id).map(o=>o.id);
+    const subIds = DB.submissions.filter(s=>s.period_id===id).map(s=>s.id);
+    // FK ON DELETE CASCADE menghapus objectives, key_results, weights, submissions
+    await dbDelete('periods', id);
+    DB.objectives  = DB.objectives.filter(o=>o.period_id!==id);
+    DB.key_results = DB.key_results.filter(k=>!objIds.includes(k.objective_id));
+    DB.weights     = DB.weights.filter(w=>!objIds.includes(w.objective_id));
+    DB.submissions = DB.submissions.filter(s=>s.period_id!==id);
+    DB.submission_details = DB.submission_details.filter(d=>!subIds.includes(d.submission_id));
+    const s=getSession(); await logActivity(s.id,'PERIOD_DELETE','menghapus periode "'+p.name+'"');
+    renderAdPeriod();
+    toast('Periode dihapus','success');
+  }catch(e){ toast('Gagal menghapus periode: '+e.message,'danger'); }
+}
+
+/* ===== CRUD USER MODAL ===== */
+let _editUserId = null;
+function openUserModal(id){
+  _editUserId = id || null;
+  if(id){
+    const u = DB.users.find(x=>x.id===id);
+    document.getElementById('umTitle').textContent='Edit User';
+    document.getElementById('umNik').value=u.nik;
+    document.getElementById('umN').value=u.name;
+    document.getElementById('umU').value=u.username;
+    document.getElementById('umP').value='';
+    document.getElementById('umJ').value=u.jabatan;
+    document.getElementById('umR').value=u.role;
+    document.getElementById('umS').value=u.status==='active'?'1':'0';
+  } else {
+    document.getElementById('umTitle').textContent='Tambah User';
+    document.getElementById('umNik').value='';
+    document.getElementById('umN').value='';
+    document.getElementById('umU').value='';
+    document.getElementById('umP').value='';
+    document.getElementById('umJ').value='';
+    document.getElementById('umR').value='employee';
+    document.getElementById('umS').value='1';
+  }
+  document.getElementById('userModal').classList.add('show');
+}
+async function saveUser(){
+  const nik = document.getElementById('umNik').value.trim();
+  const name = document.getElementById('umN').value.trim();
+  const username = document.getElementById('umU').value.trim();
+  const password = document.getElementById('umP').value;
+  const jabatan = document.getElementById('umJ').value.trim();
+  const role = document.getElementById('umR').value;
+  const status = document.getElementById('umS').value==='1'?'active':'inactive';
+  if(!nik||!name||!username||!jabatan){ toast('Field wajib tidak boleh kosong','error'); return; }
+  const dup = DB.users.find(u=>u.username===username && u.id!=_editUserId);
+  if(dup){ toast('Username sudah dipakai','error'); return; }
+  if(!_editUserId && !password){ toast('Password wajib diisi','error'); return; }
+  const s = getSession();
+  try{
+    if(_editUserId){
+      const changes = {nik, name, username, jabatan, role, status};
+      if(password) changes.password = password;
+      await dbUpdate('users', _editUserId, changes);
+      await logActivity(s.id,'USER_UPDATE','memperbarui user "'+name+'"');
+    } else {
+      await dbInsert('users', {nik, name, username, password, jabatan, role, status});
+      await logActivity(s.id,'USER_CREATE','menambahkan user baru "'+name+'"');
+    }
+    document.getElementById('userModal').classList.remove('show');
+    renderAdUser();
+    toast('User disimpan','success');
+  }catch(e){ toast('Gagal menyimpan user: '+e.message,'danger'); }
+}
+async function deleteUser(id){
+  const u = DB.users.find(x=>x.id===id);
+  if(u.username==='arizki'){ toast('Superadmin utama tidak bisa dihapus','error'); return; }
+  if(!confirm('Hapus user "'+u.name+'"? Semua submission terkait akan ikut terhapus.')) return;
+  try{
+    const subIds = DB.submissions.filter(s=>s.user_id===id).map(s=>s.id);
+    // FK ON DELETE CASCADE menghapus weights, submissions, notifications
+    await dbDelete('users', id);
+    DB.weights       = DB.weights.filter(w=>w.user_id!==id);
+    DB.submissions   = DB.submissions.filter(s=>s.user_id!==id);
+    DB.notifications = DB.notifications.filter(n=>n.user_id!==id);
+    DB.submission_details = DB.submission_details.filter(d=>!subIds.includes(d.submission_id));
+    const s=getSession(); await logActivity(s.id,'USER_DELETE','menghapus user "'+u.name+'"');
+    renderAdUser();
+    toast('User dihapus','success');
+  }catch(e){ toast('Gagal menghapus user: '+e.message,'danger'); }
+}
+
+/* ===== GLOBAL CLICK CLOSER ===== */
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.bell-btn') && !e.target.closest('.bell-panel')){
+    document.querySelectorAll('.bell-panel.show').forEach(x=>x.classList.remove('show'));
+  }
+  if(!e.target.closest('.profile-btn') && !e.target.closest('.profile-panel')){
+    document.querySelectorAll('.profile-panel.show').forEach(x=>x.classList.remove('show'));
+  }
+});
+
+/* ===== INIT ON LOAD ===== */
+function showBoot(which, msg){
+  ['bootLoading','bootConfig','bootError'].forEach(id=>{
+    document.getElementById(id).style.display = (id===which)?'block':'none';
+  });
+  document.getElementById('bootOverlay').classList.remove('hidden');
+  if(which==='bootError' && msg) document.getElementById('bootErrorMsg').textContent = msg;
+}
+function hideBoot(){ document.getElementById('bootOverlay').classList.add('hidden'); }
+
+window.onload = async function(){
+  // 1. Cek konfigurasi Supabase
+  if(!configValid()){ showBoot('bootConfig'); return; }
+  // 2. Cek library supabase-js termuat
+  if(typeof supabase === 'undefined' || !supabase.createClient){
+    showBoot('bootError', 'Pustaka supabase-js gagal dimuat. Pastikan ada koneksi internet.');
+    return;
+  }
+  showBoot('bootLoading');
+  try{
+    // 3. Buat klien & muat seluruh data dari Supabase
+    sb = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    DB = await loadDb();
+  }catch(e){
+    showBoot('bootError', e.message || 'Tidak dapat mengambil data dari Supabase.');
+    return;
+  }
+  // 4. Data siap — jalankan aplikasi
+  hideBoot();
+  renderLanding();
+  const s = getSession();
+  if(s){
+    // pastikan akun masih ada & aktif di database
+    const still = DB.users.find(u=>u.id===s.id && u.status==='active');
+    if(!still){ clearSession(); route('landing'); setTimeout(()=>maybeShowPopup('landing'),700); return; }
+    if(s.role==='employee') route('employee');
+    else if(s.role==='admin' || s.role==='superadmin') route('admin');
+    else route('landing');
+  } else {
+    route('landing');
+    setTimeout(()=>maybeShowPopup('landing'),700);
+  }
+};
+</script>
+</body>
+</html>
