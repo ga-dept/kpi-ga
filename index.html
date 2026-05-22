@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet"/>
 <style>
 :root{
   --c-blue:#0057B7;
@@ -63,9 +64,34 @@ a{text-decoration:none}
 .kpi-table.weight-table{font-size:.78rem;min-width:760px}
 .kpi-table.weight-table th{font-size:.7rem;padding:6px 4px;text-align:center;background:#F8FAFC}
 .kpi-table.weight-table td{padding:4px}
-.w-inp{width:54px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;text-align:center;font-size:.82rem}
-.w-inp:focus{outline:none;border-color:var(--c-blue);box-shadow:0 0 0 2px rgba(0,87,183,.12)}
-.total-cell{font-weight:700;text-align:center;background:#F8FAFC}
+/* assignment rows inside KPI modal */
+.assign-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;
+  padding:8px 10px;background:#F8FAFC;border:1px solid var(--border);border-radius:10px}
+.assign-pick{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.assign-pick > i{color:var(--c-blue);font-size:1.05rem;flex-shrink:0}
+.assign-pick select{flex:1;min-width:0}
+.assign-w{display:flex;align-items:center;gap:4px;width:108px;flex-shrink:0}
+.assign-w input{text-align:center}
+.assign-w span{color:var(--text-muted);font-weight:600}
+/* weight summary panel */
+.wsum-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dashed var(--border)}
+.wsum-row:last-child{border-bottom:none}
+.wsum-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-weight:700;font-size:.78rem;
+  background:var(--grad-soft);color:var(--c-blue)}
+.wsum-info{flex:1;min-width:0}
+.wsum-name{font-weight:700;font-size:.88rem}
+.wsum-sub{font-size:.74rem;color:var(--text-muted)}
+.wsum-bar{width:150px;height:7px;background:#F1F5F9;border-radius:999px;overflow:hidden;flex-shrink:0}
+.wsum-bar > span{display:block;height:100%;border-radius:999px}
+.wsum-total{width:54px;text-align:right;font-weight:800;font-size:.9rem}
+.wsum-total.ok{color:var(--c-green)}
+.wsum-total.warn{color:#F59E0B}
+/* Quill editor tweaks */
+#popEditor{background:#fff;border-radius:0 0 10px 10px;min-height:160px}
+.ql-toolbar.ql-snow{border-radius:10px 10px 0 0;border-color:var(--border)}
+.ql-container.ql-snow{border-color:var(--border);font-family:inherit;font-size:.92rem}
+.ql-editor{min-height:160px}
 
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:600;background:#EEF2F7;color:#475569;border:1px solid var(--border)}
 .chip-success{background:#E6F8EE;color:#066B3A;border-color:#B4E8C9}
@@ -423,12 +449,12 @@ a{text-decoration:none}
 <div id="bootOverlay" class="boot-overlay">
   <div class="boot-box" id="bootLoading">
     <div class="boot-spin"></div>
-    <h5>Memuat data...</h5>
+    <h5>Memuat data …</h5>
     <p>Mohon tunggu sebentar.</p>
   </div>
   <div class="boot-box" id="bootConfig" style="display:none">
     <div class="boot-ic warn"><i class="bi bi-gear-fill"></i></div>
-    <h5>Konfigurasi database belum diisi</h5>
+    <h5>Konfigurasi Supabase belum diisi</h5>
     <p>Buka file <code>index.html</code>, cari blok <b>SUPABASE_CONFIG</b> di bagian atas
        tag <code>&lt;script&gt;</code>, lalu isi <b>url</b> dan <b>anonKey</b> dengan data
        dari project Supabase Anda (menu <i>Project Settings &rsaquo; API</i>).</p>
@@ -462,11 +488,10 @@ a{text-decoration:none}
 
   <!-- HERO -->
   <div class="lp-hero">
-    <div class="lp-avatar a1">KPI</div><div class="lp-arrow r1"><i class="bi bi-arrow-down-right"></i></div>
-    <div class="lp-avatar a2">OKR</div><div class="lp-arrow r2"><i class="bi bi-arrow-down-right"></i></div>
+    <div class="lp-avatar a1">OKR</div><div class="lp-arrow r1"><i class="bi bi-arrow-down-right"></i></div>
+    <div class="lp-avatar a2">KPI</div><div class="lp-arrow r2"><i class="bi bi-arrow-down-right"></i></div>
     <div class="container position-relative">
-      <span class="lp-hero-badge"><i class="bi bi-fire"></i> Sistem Penilaian Kinerja Resmi</span>
-      <h1 class="lp-hero-title">KPI Management<br>by <span class="accent">GASS Terus!</span></h1>
+      <h1 class="lp-hero-title">KPI Management <br>by <span class="accent">GASS Terus!</span></h1>
       <p class="lp-hero-sub">Platform internal General Affairs Department untuk pengelolaan, penilaian, dan evaluasi <b>Key Performance Indicator (KPI)</b> tahunan secara transparan, terstruktur, dan akuntabel.</p>
       <div class="d-flex gap-2 justify-content-center flex-wrap">
         <button class="btn-grad" onclick="goLogin()"><i class="bi bi-arrow-right-circle me-2"></i>Mulai Sekarang</button>
@@ -856,8 +881,8 @@ a{text-decoration:none}
                   <th>Nama Objective</th>
                   <th style="width:130px">Tipe Target</th>
                   <th style="width:90px">Total KR</th>
-                  <th style="width:80px">Periode</th>
-                  <th style="width:180px">Aksi</th>
+                  <th style="width:90px">Karyawan</th>
+                  <th style="width:120px">Aksi</th>
                 </tr></thead>
                 <tbody id="adKpiBody"></tbody>
               </table>
@@ -866,12 +891,12 @@ a{text-decoration:none}
 
           <div class="cardx mt-3">
             <div class="cardx-h">
-              <h5><i class="bi bi-grid-3x3-gap-fill text-grad me-2"></i>Pembobotan per Karyawan</h5>
+              <h5><i class="bi bi-people-fill text-grad me-2"></i>Ringkasan Beban KPI per Karyawan</h5>
               <select class="form-select form-select-sm" id="adWeightPeriod" onchange="renderAdWeight()" style="width:auto"></select>
             </div>
             <div class="cardx-b">
-              <small class="text-muted d-block mb-2">Matriks bobot KPI per karyawan. Total bobot per karyawan harus = 100%. Klik sel untuk mengedit.</small>
-              <div class="scroll-x" id="adWeightWrap"></div>
+              <small class="text-muted d-block mb-2">Total bobot tiap karyawan idealnya = 100%. Atur penugasan KPI lewat tombol <b>Kelola</b> pada masing-masing KPI di tabel atas.</small>
+              <div id="adWeightWrap"></div>
             </div>
           </div>
         </div>
@@ -984,8 +1009,9 @@ a{text-decoration:none}
                   </select>
                 </div>
                 <div class="col-12">
-                  <label class="form-label">Konten (HTML diperbolehkan)</label>
-                  <textarea class="form-control" id="popContent" rows="5"></textarea>
+                  <label class="form-label">Konten Pengumuman</label>
+                  <div id="popEditor"></div>
+                  <small class="text-muted">Gunakan toolbar untuk menebalkan, memiringkan, membuat daftar, menautkan, dsb. — tanpa perlu menulis kode HTML.</small>
                 </div>
                 <div class="col-12 d-flex gap-2">
                   <button class="btn-grad" onclick="savePopup()"><i class="bi bi-save me-1"></i>Simpan Pengaturan</button>
@@ -1131,6 +1157,17 @@ a{text-decoration:none}
       </div>
       <div id="akmKrList"></div>
       <div class="text-end mt-2"><b>Total Bobot KR: </b><span id="akmTotalKr" class="text-grad fw-7">0</span>%</div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0 fw-7"><i class="bi bi-people-fill me-1"></i>Dikenakan ke Karyawan
+          <small class="text-muted d-block fw-4" style="font-size:.78rem">Pilih karyawan yang dinilai dengan KPI ini & bobotnya. Bobot adalah porsi KPI ini terhadap total skor karyawan tsb.</small>
+        </h6>
+        <button class="btn-outline-grad btn-sm" onclick="akmAddAssign()"><i class="bi bi-person-plus me-1"></i>Tambah Karyawan</button>
+      </div>
+      <div id="akmAssignList"></div>
+      <div class="assign-empty text-muted" id="akmAssignEmpty" style="font-size:.85rem;padding:10px 2px">
+        Belum ada karyawan. KPI ini tidak akan muncul di akun siapa pun sampai ditambahkan.
+      </div>
     </div>
     <div class="modal-x-foot">
       <button class="btn-outline-grad" onclick="document.getElementById('kpiAdminModal').classList.remove('show')">Batal</button>
@@ -1204,6 +1241,7 @@ a{text-decoration:none}
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
 /* =================================================================
    GASS Terus! — KPI Management System
@@ -1506,13 +1544,13 @@ function maybeShowPopup(where){
 function closePopup(){ document.getElementById('popupModal').classList.remove('show'); }
 function previewPopup(){
   document.getElementById('popupTitleR').innerText = document.getElementById('popTitle').value;
-  document.getElementById('popupBodyR').innerHTML = document.getElementById('popContent').value;
+  document.getElementById('popupBodyR').innerHTML = popupQuill ? popupQuill.root.innerHTML : (document.getElementById('popContentFallback')?.value || '');
   document.getElementById('popupModal').classList.add('show');
 }
 async function savePopup(){
   const changes = {
     title:   document.getElementById('popTitle').value,
-    content: document.getElementById('popContent').value,
+    content: popupQuill ? popupQuill.root.innerHTML : (document.getElementById('popContentFallback')?.value || ''),
     target:  document.getElementById('popTarget').value,
     type:    document.getElementById('popType').value,
     active:  document.getElementById('popActive').value === '1'
@@ -2188,9 +2226,9 @@ function renderAdKpi(){
       <td><b>${o.name}</b><br><span class="text-muted" style="font-size:.72rem">${o.formula||''}</span></td>
       <td><span class="chip ${o.score_type==='direct'?'chip-success':'chip-info'}">${tp}</span></td>
       <td>${krs.length} KR</td>
-      <td>${DB.periods.find(p=>p.id===o.period_id)?.year||''}</td>
+      <td>${DB.weights.filter(w=>w.objective_id===o.id).length} org</td>
       <td>
-        <button class="btn-mini" onclick="openKpiModal(${o.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+        <button class="btn-mini" onclick="openKpiModal(${o.id})" title="Edit & Kelola Penugasan"><i class="bi bi-pencil"></i></button>
         <button class="btn-mini danger" onclick="deleteKpi(${o.id})" title="Hapus"><i class="bi bi-trash"></i></button>
       </td>
     </tr>`;
@@ -2200,72 +2238,34 @@ function renderAdKpi(){
 function renderAdWeight(){
   const pid = parseInt(document.getElementById('adWeightPeriod').value);
   const objs = DB.objectives.filter(o=>o.period_id===pid);
-  const emps = DB.users.filter(u=>u.status==='active');
-  if(objs.length===0){ document.getElementById('adWeightWrap').innerHTML='<div class="text-muted p-3" style="font-size:.85rem">Tambahkan KPI dulu untuk membobotkan.</div>'; return; }
-  document.getElementById('adWeightWrap').innerHTML = `
-    <table class="kpi-table weight-table">
-      <thead>
-        <tr>
-          <th style="width:200px;position:sticky;left:0;background:#f8fafc;z-index:2">Karyawan</th>
-          ${objs.map(o=>`<th title="${o.name}" style="font-size:.7rem">${o.name.length>22?o.name.slice(0,22)+'…':o.name}</th>`).join('')}
-          <th style="width:80px">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${emps.map(e=>{
-          let total=0;
-          const cells = objs.map(o=>{
-            const w = DB.weights.find(x=>x.user_id===e.id && x.objective_id===o.id);
-            const v = w?w.weight:0; total+=v;
-            return `<td><input type="number" class="w-inp" data-uid="${e.id}" data-oid="${o.id}" min="0" max="100" value="${v}"></td>`;
-          }).join('');
-          return `<tr><td style="position:sticky;left:0;background:#fff;font-weight:600;font-size:.78rem">${e.name}<div style="font-size:.7rem;color:var(--text-muted);font-weight:400">${e.jabatan}</div></td>${cells}<td class="total-cell" data-uid="${e.id}"><b style="color:${total===100?'var(--c-green)':'#ef4444'}">${total}%</b></td></tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-    <div class="d-flex gap-2 mt-3">
-      <button class="btn-grad" id="saveWeightBtn" onclick="saveWeights()"><i class="bi bi-check2 me-1"></i>Simpan Pembobotan</button>
-      <div class="text-muted" style="font-size:.78rem;align-self:center">Total bobot per karyawan harus 100% (atau 0 untuk tidak menilai).</div>
-    </div>
-  `;
-  document.querySelectorAll('.w-inp').forEach(inp=>{
-    inp.addEventListener('input',()=>{
-      const uid = parseInt(inp.dataset.uid);
-      let total=0;
-      document.querySelectorAll(`.w-inp[data-uid="${uid}"]`).forEach(x=>{ total+=parseInt(x.value||0); });
-      const tc = document.querySelector(`.total-cell[data-uid="${uid}"]`);
-      tc.innerHTML = `<b style="color:${total===100?'var(--c-green)':'#ef4444'}">${total}%</b>`;
-    });
-  });
-}
-async function saveWeights(){
-  const inputs = document.querySelectorAll('.w-inp');
-  const totals = {};
-  inputs.forEach(inp=>{ const uid = parseInt(inp.dataset.uid); totals[uid] = (totals[uid]||0) + parseInt(inp.value||0); });
-  const invalid = Object.entries(totals).filter(([_,v])=>v!==0 && v!==100);
-  if(invalid.length>0){ toast('Total bobot tiap karyawan harus 100% (atau 0)','error'); return; }
-  const btn = document.getElementById('saveWeightBtn');
-  if(btn) btn.disabled = true;
-  try{
-    for(const inp of inputs){
-      const uid = parseInt(inp.dataset.uid);
-      const oid = parseInt(inp.dataset.oid);
-      const w   = parseInt(inp.value||0);
-      const row = DB.weights.find(x=>x.user_id===uid && x.objective_id===oid);
-      if(row){
-        if(row.weight !== w) await dbUpdate('weights', row.id, {weight:w});
-      } else {
-        await dbInsert('weights', {user_id:uid, objective_id:oid, weight:w});
-      }
-    }
-    const s=getSession();
-    await logActivity(s.id,'WEIGHT_UPDATE','memperbarui pembobotan KPI karyawan');
-    toast('Pembobotan berhasil disimpan','success');
-  }catch(e){
-    toast('Gagal menyimpan pembobotan: '+e.message,'danger');
-  }finally{
-    if(btn) btn.disabled = false;
+  const wrap = document.getElementById('adWeightWrap');
+  if(objs.length===0){
+    wrap.innerHTML = '<div class="text-muted p-3" style="font-size:.85rem">Belum ada KPI pada periode ini.</div>';
+    return;
   }
+  const objIds = objs.map(o=>o.id);
+  const emps = DB.users.filter(u=>u.status==='active');
+  const rows = emps.map(e=>{
+    const ws = DB.weights.filter(w=>w.user_id===e.id && objIds.includes(w.objective_id));
+    const total = ws.reduce((a,w)=>a+(w.weight||0),0);
+    return {e, count:ws.length, total};
+  }).filter(r=>r.count>0);
+  if(rows.length===0){
+    wrap.innerHTML = '<div class="text-muted p-3" style="font-size:.85rem">Belum ada KPI yang dikenakan ke karyawan. Buka sebuah KPI lalu tambahkan karyawan pada bagian "Dikenakan ke Karyawan".</div>';
+    return;
+  }
+  wrap.innerHTML = rows.sort((a,b)=>b.total-a.total).map(r=>{
+    const ok = Math.abs(r.total-100)<0.01;
+    return `<div class="wsum-row">
+      <div class="wsum-av">${initials(r.e.name)}</div>
+      <div class="wsum-info">
+        <div class="wsum-name">${r.e.name}</div>
+        <div class="wsum-sub">${r.e.jabatan} · ${r.count} KPI dikenakan</div>
+      </div>
+      <div class="wsum-bar"><span style="width:${Math.min(r.total,100)}%;background:${ok?'var(--c-green)':'#F59E0B'}"></span></div>
+      <div class="wsum-total ${ok?'ok':'warn'}">${r.total}%</div>
+    </div>`;
+  }).join('');
 }
 
 function renderAdPeriod(){
@@ -2332,13 +2332,39 @@ function renderAdUser(){
   </tr>`).join('');
 }
 
+let popupQuill = null;
 function renderAdPopup(){
   const p = DB.popup;
-  document.getElementById('popTitle').value = p.title;
-  document.getElementById('popContent').value = p.content;
+  document.getElementById('popTitle').value = p.title || '';
   document.getElementById('popActive').value = p.active?'1':'0';
-  document.getElementById('popTarget').value = p.target;
-  document.getElementById('popType').value = p.type;
+  document.getElementById('popTarget').value = p.target || 'both';
+  document.getElementById('popType').value = p.type || 'info';
+  // inisialisasi editor Quill sekali saja
+  if(!popupQuill){
+    if(typeof Quill === 'undefined'){
+      // fallback: jika Quill gagal dimuat, pakai textarea biasa
+      document.getElementById('popEditor').innerHTML =
+        '<textarea class="form-control" id="popContentFallback" rows="5"></textarea>';
+    } else {
+      popupQuill = new Quill('#popEditor', {
+        theme:'snow',
+        modules:{ toolbar:[
+          [{header:[1,2,3,false]}],
+          ['bold','italic','underline'],
+          [{color:[]},{background:[]}],
+          [{list:'ordered'},{list:'bullet'}],
+          [{align:[]}],
+          ['link','clean']
+        ]}
+      });
+    }
+  }
+  if(popupQuill){
+    popupQuill.clipboard.dangerouslyPasteHTML(p.content || '');
+  } else {
+    const fb = document.getElementById('popContentFallback');
+    if(fb) fb.value = p.content || '';
+  }
 }
 
 function renderAdLog(){
@@ -2388,6 +2414,9 @@ function openKpiModal(id){
     document.getElementById('akmKrList').innerHTML='';
     krs.forEach(k=>akmAddKr(k));
     if(krs.length===0) akmAddKr();
+    // muat penugasan karyawan yang sudah ada untuk KPI ini
+    document.getElementById('akmAssignList').innerHTML='';
+    DB.weights.filter(w=>w.objective_id===id).forEach(w=>akmAddAssign(w.user_id, w.weight));
   } else {
     document.getElementById('adKMtitle').textContent='Tambah Objective KPI';
     document.getElementById('akmName').value='';
@@ -2396,8 +2425,10 @@ function openKpiModal(id){
     document.getElementById('akmScoreType').value='weighted';
     document.getElementById('akmKrList').innerHTML='';
     akmAddKr();
+    document.getElementById('akmAssignList').innerHTML='';
   }
   recalcKrTotal();
+  refreshAssignEmpty();
   document.getElementById('kpiAdminModal').classList.add('show');
 }
 function akmAddKr(kr){
@@ -2422,6 +2453,40 @@ function recalcKrTotal(){
   const el = document.getElementById('akmTotalKr');
   if(el){ el.textContent = total; el.style.color = Math.abs(total-100)<0.01?'var(--c-green)':'#ef4444'; }
 }
+
+/* ----- Penugasan karyawan di dalam modal KPI ----- */
+function refreshAssignEmpty(){
+  const n = document.querySelectorAll('#akmAssignList .assign-row').length;
+  const e = document.getElementById('akmAssignEmpty');
+  if(e) e.style.display = n ? 'none' : 'block';
+}
+function assignEmployeeOptions(selectedId){
+  // hanya user berstatus aktif; tandai yang terpilih
+  return DB.users.filter(u=>u.status==='active').map(u=>
+    `<option value="${u.id}" ${u.id===selectedId?'selected':''}>${u.name} — ${u.jabatan}</option>`
+  ).join('');
+}
+function akmAddAssign(userId, weight){
+  const wrap = document.getElementById('akmAssignList');
+  const div = document.createElement('div');
+  div.className = 'assign-row';
+  div.innerHTML = `
+    <div class="assign-pick">
+      <i class="bi bi-person-circle"></i>
+      <select class="form-select form-select-sm akm-as-user">${assignEmployeeOptions(userId)}</select>
+    </div>
+    <div class="assign-w">
+      <input type="number" class="form-control form-control-sm akm-as-w" min="0" max="100"
+             placeholder="Bobot" value="${weight!=null?weight:''}">
+      <span>%</span>
+    </div>
+    <button type="button" class="btn-mini danger" title="Hapus"
+            onclick="this.closest('.assign-row').remove();refreshAssignEmpty()">
+      <i class="bi bi-x-lg"></i>
+    </button>`;
+  wrap.appendChild(div);
+  refreshAssignEmpty();
+}
 async function saveAdKpi(){
   const period_id = parseInt(document.getElementById('akmPeriod').value);
   const name = document.getElementById('akmName').value.trim();
@@ -2441,21 +2506,48 @@ async function saveAdKpi(){
   });
   if(krs.length===0){ toast('Minimal 1 key result','error'); return; }
   if(score_type==='weighted' && Math.abs(totalW-100)>0.01){ toast('Total bobot KR harus 100% (sekarang '+totalW+'%)','error'); return; }
+
+  // kumpulkan penugasan karyawan
+  const assigns = [];
+  let assignBad = false;
+  document.querySelectorAll('#akmAssignList .assign-row').forEach(r=>{
+    const uid = parseInt(r.querySelector('.akm-as-user').value);
+    const wv  = r.querySelector('.akm-as-w').value;
+    if(wv===''){ assignBad = true; return; }
+    const w = parseFloat(wv);
+    if(assigns.some(a=>a.user_id===uid)){ assignBad = 'dup'; return; }
+    assigns.push({user_id:uid, weight:w});
+  });
+  if(assignBad==='dup'){ toast('Ada karyawan terpilih lebih dari sekali','error'); return; }
+  if(assignBad){ toast('Lengkapi bobot untuk setiap karyawan yang dikenakan','error'); return; }
+
   const s = getSession();
   try{
+    let objId;
     if(_editKpiId){
       await dbUpdate('objectives', _editKpiId, {period_id, name, formula, target_type, score_type});
-      // ganti key result: hapus lama, insert baru
       const oldKrs = DB.key_results.filter(k=>k.objective_id===_editKpiId);
       for(const k of oldKrs){ await dbDelete('key_results', k.id); }
       for(const k of krs){ await dbInsert('key_results', {objective_id:_editKpiId, ...k}); }
+      objId = _editKpiId;
       await logActivity(s.id,'KPI_UPDATE','memperbarui KPI "'+name+'"');
       toast('KPI berhasil diperbarui','success');
     } else {
       const obj = await dbInsert('objectives', {period_id, name, formula, target_type, score_type});
       for(const k of krs){ await dbInsert('key_results', {objective_id:obj.id, ...k}); }
+      objId = obj.id;
       await logActivity(s.id,'KPI_CREATE','membuat KPI baru "'+name+'"');
       toast('KPI berhasil ditambahkan','success');
+    }
+    // sinkronkan penugasan karyawan (tabel weights)
+    const existing = DB.weights.filter(w=>w.objective_id===objId);
+    for(const w of existing){
+      if(!assigns.some(a=>a.user_id===w.user_id)) await dbDelete('weights', w.id);
+    }
+    for(const a of assigns){
+      const row = DB.weights.find(w=>w.objective_id===objId && w.user_id===a.user_id);
+      if(row){ if(row.weight!==a.weight) await dbUpdate('weights', row.id, {weight:a.weight}); }
+      else { await dbInsert('weights', {objective_id:objId, user_id:a.user_id, weight:a.weight}); }
     }
     document.getElementById('kpiAdminModal').classList.remove('show');
     renderAdKpi();
